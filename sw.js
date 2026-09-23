@@ -1,4 +1,4 @@
-const CACHE = 'websec-v2';
+const CACHE = 'websec-v3';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
