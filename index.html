@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1117">
+<title>WebSec Scanner v2.0</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #21262d;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --muted: #8b949e;
+  --blue: #58a6ff;
+  --blue2: #79c0ff;
+  --green: #7ee787;
+  --yellow: #f0b72f;
+  --red: #ff7b72;
+  --accent: #238636;
+  --accent-hover: #2ea043;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg2: #f6f8fa;
+  --bg3: #eaeef2;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #656d76;
+  --blue: #0969da;
+  --blue2: #0550ae;
+  --green: #1a7f37;
+  --yellow: #9a6700;
+  --red: #cf222e;
+  --accent: #1f883d;
+  --accent-hover: #1a7f37;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 15px;
+  transition: background 0.3s, color 0.3s;
+  padding-bottom: 80px;
+}
+.header {
+  text-align: center;
+  padding: 15px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 15px;
+  position: relative;
+}
+.header h1 { color: var(--blue); font-size: 20px; margin-bottom: 3px; }
+.header p { color: var(--muted); font-size: 11px; }
+.theme-toggle {
+  position: absolute;
+  top: 15px;
+  right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+.tab {
+  padding: 8px 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}
+.section { display: none; }
+.section.active { display: block; }
+
+.box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.box label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.box input, .box textarea {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-family: inherit;
+}
+.box input:focus, .box textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+.btn:hover { background: var(--accent-hover); }
+.btn:disabled { background: var(--bg3); color: var(--muted); cursor: not-allowed; }
+.btn-blue { background: #1f6feb; }
+.btn-blue:hover { background: #388bfd; }
+.btn-red { background: #da3633; }
+.btn-red:hover { background: #f85149; }
+.btn-row { display: flex; gap: 8px; }
+.btn-row .btn { margin-bottom: 0; }
+
+.result {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.result h2 {
+  color: var(--blue);
+  font-size: 15px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.result h2 .count {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: normal;
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bg3);
+  font-size: 13px;
+  gap: 10px;
+}
+.item:last-child { border-bottom: none; }
+.item-label { color: var(--muted); flex-shrink: 0; }
+.item-value {
+  color: var(--text);
+  text-align: right;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 12px;
+}
+.good { color: var(--green); }
+.warn { color: var(--yellow); }
+.bad { color: var(--red); }
+.neutral { color: var(--blue2); }
+.score-box {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg);
+  border-radius: 10px;
+  margin: 10px 0;
+}
+.score { font-size: 44px; font-weight: bold; font-family: monospace; }
+.score.good { color: var(--green); }
+.score.warn { color: var(--yellow); }
+.score.bad { color: var(--red); }
+.score-label { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.loading {
+  display: none;
+  text-align: center;
+  padding: 25px;
+  color: var(--blue);
+}
+.loading.show { display: block; }
+.spinner {
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box {
+  background: var(--red);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-size: 13px;
+}
+.info-box {
+  background: rgba(31, 111, 235, 0.15);
+  border-left: 3px solid #1f6feb;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 12px;
+  color: var(--blue2);
+  line-height: 1.5;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  margin-left: 5px;
+}
+.badge.high { background: #d73a49; color: white; }
+.badge.med { background: var(--yellow); color: #000; }
+.badge.low { background: #1f6feb; color: white; }
+
+.history-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.history-item:hover { border-color: var(--blue); }
+.history-url {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--blue2);
+  word-break: break-all;
+  margin-bottom: 5px;
+}
+.history-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+footer {
+  text-align: center;
+  padding: 15px 10px;
+  color: var(--muted);
+  font-size: 11px;
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+}
+.install-banner {
+  display: none;
+  background: var(--accent);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+}
+.install-banner.show { display: block; }
+.preview {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 11px;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text);
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="header">
+  <h1>🔍 WebSec Scanner v2.0</h1>
+  <p>by bl_ai for tuan bizz</p>
+  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+</div>
+
+<div class="install-banner" id="installBanner" onclick="installPWA()">
+  📲 Tap buat install sebagai app
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('scan')" id="tab-scan">🔍 Scan</div>
+  <div class="tab" onclick="showTab('batch')" id="tab-batch">📦 Batch</div>
+  <div class="tab" onclick="showTab('history')" id="tab-history">📜 History</div>
+  <div class="tab" onclick="showTab('about')" id="tab-about">ℹ️ About</div>
+</div>
+
+<!-- ============ SCAN TAB ============ -->
+<div id="scan" class="section active">
+  <div class="box">
+    <label>Target URL</label>
+    <input id="target" type="text" placeholder="https://example.com" value="https://example.com">
+    <button class="btn" id="scanBtn" onclick="startScan()">🚀 Scan Sekarang</button>
+    <div class="btn-row">
+      <button class="btn btn-blue" onclick="exportLast()">📥 Export JSON</button>
+      <button class="btn btn-blue" onclick="copyLast()">📋 Copy Report</button>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p id="loadingText">Scanning...</p>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<!-- ============ BATCH TAB ============ -->
+<div id="batch" class="section">
+  <div class="box">
+    <label>Daftar URL (satu per baris)</label>
+    <textarea id="batchInput" rows="6" placeholder="https://example.com&#10;https://github.com&#10;https://cloudflare.com"></textarea>
+    <button class="btn" onclick="startBatch()" id="batchBtn">🚀 Scan Semua</button>
+  </div>
+  <div id="batchResults"></div>
+</div>
+
+<!-- ============ HISTORY TAB ============ -->
+<div id="history" class="section">
+  <div class="box">
+    <button class="btn btn-red" onclick="clearHistory()">🗑️ Hapus Semua History</button>
+  </div>
+  <div id="historyList"></div>
+</div>
+
+<!-- ============ ABOUT TAB ============ -->
+<div id="about" class="section">
+  <div class="box">
+    <h2 style="color:var(--blue);margin-bottom:10px;">🔍 WebSec Scanner v2.0</h2>
+    <p style="font-size:13px;line-height:1.6;margin-bottom:15px;">
+      Website security scanner yang jalan <b>full di browser</b>. Tanpa backend, tanpa install.
+    </p>
+    <h3 style="color:var(--blue2);font-size:14px;margin:15px 0 8px;">✨ Fitur</h3>
+    <ul style="font-size:13px;line-height:1.8;margin-left:20px;">
+      <li>Security headers check (6 headers)</li>
+      <li>Info leak detection</li>
+      <li>Technology fingerprint</li>
+      <li>Security score (0-100%)</li>
+      <li>Batch scan (multiple URL)</li>
+      <li>History (tersimpan di HP)</li>
+      <li>Export JSON + copy report</li>
+      <li>Dark/light theme</li>
+      <li>PWA — bisa di-install</li>
+    </ul>
+    <h3 style="color:var(--blue2);font-size:14px;margin:15px 0 8px;">⚠️ Disclaimer</h3>
+    <p style="font-size:12px;line-height:1.6;color:var(--yellow);">
+      Hanya scan website yang tuan miliki atau punya izin tertulis. Scanning tanpa izin bisa ilegal.
+    </p>
+  </div>
+</div>
+
+<footer>
+  ⚠️ Educational Scanner — by bl_ai<br>
+  <span id="version">v2.0</span> · <span id="onlineStatus">●</span> Online
+</footer>
+
+<script>
+// ============ CONFIG ============
+const SECURITY_HEADERS = {
+  'strict-transport-security': { name: 'HSTS', risk: 'high' },
+  'content-security-policy': { name: 'CSP', risk: 'high' },
+  'x-frame-options': { name: 'X-Frame-Options', risk: 'med' },
+  'x-content-type-options': { name: 'X-Content-Type', risk: 'med' },
+  'referrer-policy': { name: 'Referrer-Policy', risk: 'low' },
+  'permissions-policy': { name: 'Permissions-Policy', risk: 'low' },
+};
+const INFO_LEAK_HEADERS = ['server', 'x-powered-by', 'x-aspnet-version', 'via'];
+const STORAGE_KEY = 'websec_history_v2';
+const THEME_KEY = 'websec_theme_v2';
+
+let lastReport = null;
+
+// ============ THEME ============
+function toggleTheme() {
+  const current = document.body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  document.getElementById('themeBtn').textContent = next === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem(THEME_KEY, next);
+}
+function loadTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || 'dark';
+  document.body.setAttribute('data-theme', saved);
+  document.getElementById('themeBtn').textContent = saved === 'dark' ? '🌙' : '☀️';
+}
+
+// ============ TABS ============
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+  if (id === 'history') renderHistory();
+}
+
+// ============ ONLINE STATUS ============
+function updateOnlineStatus() {
+  const el = document.getElementById('onlineStatus');
+  if (navigator.onLine) {
+    el.style.color = 'var(--green)';
+    el.textContent = '●';
+  } else {
+    el.style.color = 'var(--red)';
+    el.textContent = '●';
+  }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+// ============ SCAN CORE ============
+async function startScan() {
+  const url = document.getElementById('target').value.trim();
+  if (!url) return alert('Masukkan URL!');
+
+  const target = url.startsWith('http') ? url : 'https://' + url;
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Scanning...';
+
+  showLoading('Menganalisis ' + target);
+  document.getElementById('results').innerHTML = '';
+
+  try {
+    const report = await scanUrl(target, (msg) => showLoading(msg));
+    lastReport = report;
+    renderResults(report);
+    saveToHistory(report);
+  } catch (err) {
+    document.getElementById('results').innerHTML = `
+      <div class="error-box">❌ <b>Error:</b> ${err.message}</div>
+    `;
+  } finally {
+    hideLoading();
+    btn.disabled = false;
+    btn.textContent = '🚀 Scan Sekarang';
+  }
+}
+
+async function scanUrl(target, onProgress) {
+  const report = {
+    url: target,
+    timestamp: new Date().toISOString(),
+    headers: null,
+    tech: [],
+    leaks: [],
+    score: 0,
+    maxScore: 0,
+    status: null,
+    error: null,
+  };
+
+  onProgress('Fetch website...');
+
+  let response;
+  try {
+    response = await fetch(target, {
+      method: 'GET',
+      mode: 'cors',
+      redirect: 'follow',
+      cache: 'no-cache',
+    });
+  } catch (e) {
+    // Try no-cors fallback
+    try {
+      await fetch(target, { mode: 'no-cors' });
+      report.headers = 'CORS_BLOCKED';
+      report.error = 'CORS blocked — website gak izinin browser baca header.';
+      return report;
+    } catch (e2) {
+      throw new Error('Website gak bisa diakses: ' + e2.message);
+    }
+  }
+
+  report.status = response.status;
+
+  // Headers
+  onProgress('Cek security headers...');
+  const headers = {};
+  response.headers.forEach((v, k) => headers[k.toLowerCase()] = v);
+  report.headers = headers;
+
+  let score = 0, maxScore = 0;
+  for (const [key, info] of Object.entries(SECURITY_HEADERS)) {
+    const w = { high: 3, med: 2, low: 1 }[info.risk];
+    maxScore += w;
+    if (headers[key]) score += w;
+  }
+  report.score = score;
+  report.maxScore = maxScore;
+
+  // Leaks
+  report.leaks = INFO_LEAK_HEADERS.filter(h => headers[h]).map(h => ({
+    name: h, value: headers[h]
+  }));
+
+  // Tech
+  onProgress('Deteksi teknologi...');
+  try {
+    const text = (await response.text()).toLowerCase();
+    const headerStr = JSON.stringify(headers).toLowerCase();
+    const sigs = {
+      'WordPress': ['wp-content', 'wp-includes', 'wp-json'],
+      'React': ['_reactrootcontainer', 'react.development', 'react.production'],
+      'Vue.js': ['vue.js', '__vue__', 'data-v-'],
+      'Angular': ['ng-version', 'ng-app'],
+      'jQuery': ['jquery.min.js', 'jquery.js'],
+      'Bootstrap': ['bootstrap.min.css', 'bootstrap.js'],
+      'Tailwind': ['tailwind', 'tw-'],
+      'Cloudflare': ['cf-ray', '__cfduid', 'cloudflare'],
+      'Nginx': ['nginx'],
+      'Apache': ['apache'],
+      'PHP': ['phpsessid', '.php'],
+      'ASP.NET': ['asp.net', '__viewstate'],
+      'Next.js': ['__next', '_next/'],
+      'Nuxt.js': ['__nuxt', '_nuxt/'],
+      'Shopify': ['shopify', 'cdn.shopify'],
+      'Google Analytics': ['google-analytics', 'gtag', 'ga('],
+      'Font Awesome': ['font-awesome', 'fontawesome'],
+      'Google Fonts': ['fonts.googleapis'],
+    };
+    for (const [tech, signs] of Object.entries(sigs)) {
+      for (const sign of signs) {
+        if (text.includes(sign) || headerStr.includes(sign)) {
+          report.tech.push(tech);
+          break;
+        }
+      }
+    }
+  } catch (e) {}
+
+  return report;
+}
+
+// ============ RENDER ============
+function renderResults(r) {
+  const div = document.getElementById('results');
+  let html = '';
+
+  // Target info
+  html += `
+    <div class="result">
+      <h2>🎯 Target</h2>
+      <div class="item">
+        <span class="item-label">URL</span>
+        <span class="item-value neutral">${r.url}</span>
+      </div>
+      ${r.status ? `
+      <div class="item">
+        <span class="item-label">Status</span>
+        <span class="item-value ${r.status < 400 ? 'good' : 'bad'}">${r.status}</span>
+      </div>` : ''}
+      <div class="item">
+        <span class="item-label">Waktu</span>
+        <span class="item-value">${new Date(r.timestamp).toLocaleString('id-ID')}</span>
+      </div>
+    </div>
+  `;
+
+  if (r.error) {
+    html += `<div class="error-box">⚠️ ${r.error}</div>`;
+  }
+
+  // Headers
+  if (r.headers && r.headers !== 'CORS_BLOCKED') {
+    html += `<div class="result"><h2>📋 Security Headers <span class="count">${Object.keys(SECURITY_HEADERS).length} items</span></h2>`;
+    for (const [key, info] of Object.entries(SECURITY_HEADERS)) {
+      const present = !!r.headers[key];
+      html += `
+        <div class="item">
+          <span class="item-label">${info.name} <span class="badge ${info.risk}">${info.risk.toUpperCase()}</span></span>
+          <span class="item-value ${present ? 'good' : 'bad'}">${present ? '✓' : '✗ Missing'}</span>
+        </div>
+      `;
+    }
+    html += `</div>`;
+  }
+
+  // Leaks
+  if (r.leaks && r.leaks.length > 0) {
+    html += `<div class="result"><h2>⚠️ Info Leaks</h2>`;
+    r.leaks.forEach(l => {
+      html += `
+        <div class="item">
+          <span class="item-label">${l.name}</span>
+          <span class="item-value warn">${l.value}</span>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  // Tech
+  if (r.tech && r.tech.length > 0) {
+    html += `<div class="result"><h2>🔧 Technology <span class="count">${r.tech.length}</span></h2>`;
+    r.tech.forEach(t => {
+      html += `<div class="item"><span class="item-label">${t}</span><span class="item-value good">✓</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Score
+  if (r.maxScore > 0) {
+    const pct = Math.round((r.score / r.maxScore) * 100);
+    const cls = pct >= 70 ? 'good' : pct >= 40 ? 'warn' : 'bad';
+    const label = pct >= 70 ? 'GOOD' : pct >= 40 ? 'NEEDS IMPROVEMENT' : 'POOR';
+    html += `
+      <div class="result">
+        <h2>🎯 Security Score</h2>
+        <div class="score-box">
+          <div class="score ${cls}">${pct}%</div>
+          <div class="score-label">${label} (${r.score}/${r.maxScore})</div>
+        </div>
+      </div>
+    `;
+  }
+
+  div.innerHTML = html;
+}
+
+// ============ HISTORY ============
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch { return []; }
+}
+function saveToHistory(report) {
+  const history = getHistory();
+  history.unshift({
+    url: report.url,
+    timestamp: report.timestamp,
+    score: report.score,
+    maxScore: report.maxScore,
+    status: report.status,
+  });
+  // Keep last 50
+  if (history.length > 50) history.length = 50;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+}
+function renderHistory() {
+  const history = getHistory();
+  const div = document.getElementById('historyList');
+  if (history.length === 0) {
+    div.innerHTML = `<div class="info-box">Belum ada history. Scan dulu.</div>`;
+    return;
+  }
+  div.innerHTML = history.map((h, i) => {
+    const pct = h.maxScore > 0 ? Math.round((h.score / h.maxScore) * 100) : 0;
+    const cls = pct >= 70 ? 'good' : pct >= 40 ? 'warn' : 'bad';
+    return `
+      <div class="history-item" onclick="loadFromHistory(${i})">
+        <div class="history-url">${h.url}</div>
+        <div class="history-meta">
+          <span>${new Date(h.timestamp).toLocaleString('id-ID')}</span>
+          <span class="${cls}">${pct}%</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function loadFromHistory(i) {
+  const h = getHistory()[i];
+  if (!h) return;
+  document.getElementById('target').value = h.url;
+  showTab('scan');
+  startScan();
+}
+function clearHistory() {
+  if (!confirm('Hapus semua history?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderHistory();
+}
+
+// ============ EXPORT ============
+function exportLast() {
+  if (!lastReport) return alert('Scan dulu sebelum export!');
+  const data = JSON.stringify(lastReport, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `websec_${new Date().getTime()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function copyLast() {
+  if (!lastReport) return alert('Scan dulu sebelum copy!');
+  const r = lastReport;
+  let txt = `WebSec Scanner Report\n`;
+  txt += `URL: ${r.url}\n`;
+  txt += `Time: ${new Date(r.timestamp).toLocaleString('id-ID')}\n`;
+  txt += `Status: ${r.status}\n\n`;
+  if (r.headers && r.headers !== 'CORS_BLOCKED') {
+    txt += `=== SECURITY HEADERS ===\n`;
+    for (const [key, info] of Object.entries(SECURITY_HEADERS)) {
+      txt += `${info.name}: ${r.headers[key] ? '✓ ' + r.headers[key] : '✗ MISSING'}\n`;
+    }
+  }
+  if (r.tech.length) txt += `\n=== TECH ===\n${r.tech.join(', ')}\n`;
+  if (r.maxScore > 0) {
+    const pct = Math.round((r.score / r.maxScore) * 100);
+    txt += `\n=== SCORE ===\n${pct}% (${r.score}/${r.maxScore})\n`;
+  }
+  navigator.clipboard.writeText(txt).then(() => alert('Report di-copy!'));
+}
+
+// ============ BATCH ============
+async function startBatch() {
+  const input = document.getElementById('batchInput').value.trim();
+  if (!input) return alert('Masukkan URL!');
+  const urls = input.split('\n').map(u => u.trim()).filter(Boolean);
+  const btn = document.getElementById('batchBtn');
+  btn.disabled = true;
+
+  const div = document.getElementById('batchResults');
+  div.innerHTML = '';
+
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i].startsWith('http') ? urls[i] : 'https://' + urls[i];
+    btn.textContent = `⏳ Scanning ${i + 1}/${urls.length}...`;
+    div.innerHTML += `
+      <div class="result" id="batch-${i}">
+        <h2>${url}</h2>
+        <div class="item"><span class="item-label">Status</span><span class="item-value">⏳ Scanning...</span></div>
+      </div>
+    `;
+    try {
+      const report = await scanUrl(url, () => {});
+      const pct = report.maxScore > 0 ? Math.round((report.score / report.maxScore) * 100) : 0;
+      const cls = pct >= 70 ? 'good' : pct >= 40 ? 'warn' : 'bad';
+      const headersInfo = report.headers && report.headers !== 'CORS_BLOCKED'
+        ? `${Object.keys(SECURITY_HEADERS).filter(k => report.headers[k]).length}/${Object.keys(SECURITY_HEADERS).length} headers`
+        : 'CORS blocked';
+      document.getElementById(`batch-${i}`).innerHTML = `
+        <h2>${url}</h2>
+        <div class="item"><span class="item-label">Status</span><span class="item-value ${report.status < 400 ? 'good' : 'bad'}">${report.status || '—'}</span></div>
+        <div class="item"><span class="item-label">Headers</span><span class="item-value">${headersInfo}</span></div>
+        <div class="item"><span class="item-label">Score</span><span class="item-value ${cls}">${pct}%</span></div>
+      `;
+      saveToHistory(report);
+    } catch (e) {
+      document.getElementById(`batch-${i}`).innerHTML = `
+        <h2>${url}</h2>
+        <div class="error-box">❌ ${e.message}</div>
+      `;
+    }
+  }
+  btn.disabled = false;
+  btn.textContent = '🚀 Scan Semua';
+}
+
+// ============ PWA ============
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((c) => {
+    if (c.outcome === 'accepted') {
+      document.getElementById('installBanner').classList.remove('show');
+    }
+    deferredPrompt = null;
+  });
+}
+
+// ============ SERVICE WORKER ============
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ============ INIT ============
+loadTheme();
+updateOnlineStatus();
+console.log('%c🔍 WebSec Scanner v2.0', 'color:#58a6ff;font-size:18px;font-weight:bold;');
+console.log('%cby bl_ai for tuan bizz', 'color:#79c0ff;font-size:12px;');
+</script>
+
+</body>
+</html>
