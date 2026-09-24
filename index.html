@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<title>WebSec Scanner v4.3.1 — by PANN</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<style>
+:root{--bg:#0a0a0f;--bg2:rgba(22,27,34,.7);--bg3:rgba(33,38,45,.6);--bd:rgba(48,54,61,.8);--tx:#e6edf3;--mt:#8b949e;--bl:#58a6ff;--bl2:#79c0ff;--gn:#7ee787;--yl:#f0b72f;--rd:#ff7b72;--ac:#238636;--pn:#a855f7;--pn2:#d946ef;--gl:rgba(22,27,34,.6);--gb:rgba(168,85,247,.25)}
+[data-theme=light]{--bg:#f0f2f5;--bg2:rgba(255,255,255,.75);--bg3:rgba(240,242,245,.7);--bd:rgba(208,215,222,.8);--tx:#1f2328;--mt:#656d76;--bl:#0969da;--bl2:#0550ae;--gn:#1a7f37;--yl:#9a6700;--rd:#cf222e;--ac:#1f883d;--pn:#7c3aed;--pn2:#a855f7;--gl:rgba(255,255,255,.75);--gb:rgba(124,58,237,.25)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100vh;font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;transition:background .3s,color .3s}
+#bgc{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-3;pointer-events:none}
+.mesh{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;pointer-events:none;background:radial-gradient(circle at 20% 20%,rgba(168,85,247,.18) 0%,transparent 40%),radial-gradient(circle at 80% 30%,rgba(88,166,255,.14) 0%,transparent 40%),radial-gradient(circle at 50% 80%,rgba(217,70,239,.12) 0%,transparent 40%);animation:mm 20s ease-in-out infinite alternate}
+@keyframes mm{to{transform:scale(1.25) translate(-4%,-4%)}}
+.grid{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(168,85,247,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,.05) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%)}
+.scan{position:fixed;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,var(--pn),var(--bl),transparent);z-index:9999;pointer-events:none;opacity:.4;animation:sc 7s linear infinite;box-shadow:0 0 15px var(--pn)}
+@keyframes sc{0%{top:-5%}100%{top:105%}}
+.wrap{max-width:720px;margin:0 auto;padding:12px 12px 100px;position:relative;z-index:1}
+.hd{position:relative;text-align:center;padding:20px 12px 16px;margin-bottom:12px;background:var(--gl);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--gb);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.4);overflow:hidden}
+.hd::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(168,85,247,.15),transparent);animation:sh 5s ease-in-out infinite}
+@keyframes sh{0%,100%{left:-100%}50%{left:100%}}
+.clock{position:absolute;top:12px;left:12px;font-size:10px;font-family:monospace;color:var(--mt);z-index:2}
+.clock .t{color:var(--pn);font-weight:bold;font-size:12px}
+.logo{display:inline-block;font-size:42px;animation:lf 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(168,85,247,.6));position:relative;z-index:1}
+@keyframes lf{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(5deg)}}
+.logo-ring{position:absolute;top:50%;left:50%;width:66px;height:66px;margin:-33px 0 0 -33px;border:2px dashed var(--pn);border-radius:50%;animation:rr 8s linear infinite;opacity:.4;z-index:0}
+@keyframes rr{to{transform:rotate(360deg)}}
+.hd h1{background:linear-gradient(90deg,var(--pn),var(--bl),var(--pn2),var(--pn));background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:20px;margin:4px 0;font-weight:900;animation:gf 4s ease infinite;position:relative;z-index:1}
+@keyframes gf{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hd .br{font-size:11px;color:var(--mt);margin-bottom:6px;position:relative;z-index:1}
+.hd .br .pn{color:var(--pn);font-weight:bold;font-size:14px;letter-spacing:2px;text-shadow:0 0 10px rgba(168,85,247,.6)}
+.hd .cr{display:inline-block;background:linear-gradient(135deg,var(--pn),var(--pn2));color:#fff;padding:4px 14px;border-radius:20px;font-size:10px;font-weight:bold;position:relative;z-index:1;box-shadow:0 4px 15px rgba(168,85,247,.4);animation:pg 2s ease-in-out infinite}
+@keyframes pg{0%,100%{box-shadow:0 4px 15px rgba(168,85,247,.4)}50%{box-shadow:0 4px 20px rgba(168,85,247,.7),0 0 50px rgba(168,85,247,.4)}}
+.tc{position:absolute;top:12px;right:12px;display:flex;gap:5px;z-index:2}
+.cb{background:var(--gl);backdrop-filter:blur(10px);border:1px solid var(--gb);color:var(--tx);padding:6px 9px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .3s}
+.cb:hover,.cb.on{background:linear-gradient(135deg,var(--pn),var(--bl));color:#fff;border-color:transparent;transform:translateY(-2px);box-shadow:0 4px 15px rgba(168,85,247,.5)}
+.ls{display:flex;gap:3px}
+.ls button{padding:4px 8px;font-size:10px;font-weight:bold;background:var(--gl);border:1px solid var(--gb);color:var(--mt);border-radius:6px;cursor:pointer}
+.ls button.on{background:linear-gradient(135deg,var(--pn),var(--pn2));color:#fff;border-color:transparent}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.st{background:var(--gl);backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .3s}
+.st:hover{transform:translateY(-3px);border-color:var(--pn);box-shadow:0 6px 20px rgba(168,85,247,.2)}
+.stv{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--pn),var(--bl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:monospace}
+.stl{font-size:9px;color:var(--mt);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tb{padding:9px 12px;background:var(--gl);backdrop-filter:blur(10px);border:1px solid var(--gb);border-radius:10px;color:var(--mt);font-size:11px;cursor:pointer;white-space:nowrap;transition:all .3s;font-weight:600;position:relative;overflow:hidden}
+.tb::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transition:left .5s}
+.tb:hover::before{left:100%}
+.tb.on{background:linear-gradient(135deg,var(--pn),var(--bl));color:#fff;border-color:transparent;transform:translateY(-2px);box-shadow:0 6px 20px rgba(168,85,247,.5)}
+.sec{display:none}
+.sec.on{display:block;animation:si .4s cubic-bezier(.4,0,.2,1)}
+@keyframes si{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.bx,.rs{background:var(--gl);backdrop-filter:blur(20px);border:1px solid var(--gb);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 8px 32px rgba(0,0,0,.2);transition:all .3s}
+.bx:hover,.rs:hover{border-color:rgba(168,85,247,.5);transform:translateY(-2px)}
+.bx label{display:block;font-size:12px;color:var(--mt);margin-bottom:8px;font-weight:600}
+.bx input,.bx textarea,.bx select{width:100%;padding:13px;background:rgba(10,10,15,.6);border:1px solid var(--bd);border-radius:10px;color:var(--tx);font-size:14px;margin-bottom:12px;font-family:inherit;transition:all .3s}
+[data-theme=light] .bx input,[data-theme=light] .bx textarea,[data-theme=light] .bx select{background:rgba(255,255,255,.7)}
+.bx input:focus,.bx textarea:focus,.bx select:focus{outline:none;border-color:var(--pn);box-shadow:0 0 0 3px rgba(168,85,247,.15)}
+.bt{width:100%;padding:13px;background:var(--ac);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:all .3s;position:relative;overflow:hidden;letter-spacing:.3px}
+.bt::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,.3);border-radius:50%;transform:translate(-50%,-50%);transition:width .6s,height .6s}
+.bt:active::after{width:300px;height:300px;transition:0s}
+.bt:hover{background:#2ea043;transform:translateY(-2px);box-shadow:0 6px 20px rgba(35,134,54,.4)}
+.bt:disabled{background:var(--bg3);color:var(--mt);cursor:not-allowed;transform:none;box-shadow:none}
+.bt-b{background:linear-gradient(135deg,#1f6feb,#388bfd)}
+.bt-r{background:linear-gradient(135deg,#da3633,#f85149)}
+.bt-p{background:linear-gradient(135deg,var(--pn),var(--pn2));background-size:200% 200%;animation:bg 3s ease infinite;box-shadow:0 4px 15px rgba(168,85,247,.4)}
+@keyframes bg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.bt-sm{padding:9px;font-size:11px}
+.bt-rw{display:flex;gap:6px}
+.bt-rw .bt{margin-bottom:0}
+.rs h2{color:var(--bl2);font-size:14px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.rs h2 .cnt{font-size:11px;color:var(--mt);font-weight:normal;background:var(--bg3);padding:3px 10px;border-radius:12px}
+.it{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--bd);font-size:12px;gap:10px;transition:all .2s}
+.it:last-child{border-bottom:none}
+.it:hover{background:rgba(168,85,247,.05);margin:0 -8px;padding:9px 8px;border-radius:6px}
+.il{color:var(--mt);flex-shrink:0;font-weight:500}
+.iv{color:var(--tx);text-align:right;word-break:break-all;font-family:monospace;font-size:11px}
+.gd{color:var(--gn)}.wn{color:var(--yl)}.bd{color:var(--rd)}.nt{color:var(--bl2)}.pn{color:var(--pn)}
+.gauge-w{display:flex;justify-content:center;padding:18px;margin:10px 0;position:relative}
+.gauge{transform:rotate(-90deg);filter:drop-shadow(0 0 20px rgba(168,85,247,.3))}
+.gauge-bg{fill:none;stroke:var(--bg3);stroke-width:12}
+.gauge-fl{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)}
+.gauge-t{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.gauge-p{font-size:38px;font-weight:900;font-family:monospace;letter-spacing:-2px}
+.gauge-p.gd{color:var(--gn);text-shadow:0 0 30px rgba(126,231,135,.6)}
+.gauge-p.wn{color:var(--yl);text-shadow:0 0 30px rgba(240,183,47,.6)}
+.gauge-p.bd{color:var(--rd);text-shadow:0 0 30px rgba(255,123,114,.6)}
+.gauge-l{font-size:10px;color:var(--mt);margin-top:2px}
+.ld{display:none;text-align:center;padding:26px;color:var(--bl)}
+.ld.on{display:block}
+.sp{display:inline-block;width:40px;height:40px;border:3px solid var(--bd);border-top-color:var(--pn);border-right-color:var(--bl);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;box-shadow:0 0 20px rgba(168,85,247,.3)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.eb{background:linear-gradient(135deg,rgba(255,123,114,.15),rgba(218,54,51,.1));border:1px solid rgba(255,123,114,.3);color:var(--rd);padding:12px;border-radius:10px;margin:10px 0;font-size:12px}
+.ib{background:linear-gradient(135deg,rgba(31,111,235,.15),rgba(88,166,255,.1));border-left:3px solid var(--bl);padding:12px;border-radius:8px;margin:10px 0;font-size:12px;color:var(--bl2);line-height:1.6}
+.wb{background:linear-gradient(135deg,rgba(240,183,47,.15),rgba(240,183,47,.08));border-left:3px solid var(--yl);padding:12px;border-radius:8px;margin:10px 0;font-size:12px;color:var(--yl);line-height:1.6}
+.pb{background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(217,70,239,.08));border-left:3px solid var(--pn);padding:12px;border-radius:8px;margin:10px 0;font-size:12px;color:var(--pn);line-height:1.6}
+.bg{display:inline-block;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:5px}
+.bg.hi{background:#d73a49;color:#fff}.bg.md{background:var(--yl);color:#000}.bg.lo{background:#1f6feb;color:#fff}
+.hi-it{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:9px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.hi-it::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(180deg,var(--pn),var(--bl));transform:scaleY(0);transition:transform .3s}
+.hi-it:hover{border-color:var(--pn);transform:translateX(4px)}
+.hi-it:hover::before{transform:scaleY(1)}
+.hi-u{font-family:monospace;font-size:11px;color:var(--bl2);word-break:break-all;margin-bottom:5px}
+.hi-m{display:flex;justify-content:space-between;font-size:10px;color:var(--mt)}
+.mb{display:inline-block;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;margin-right:5px;font-family:monospace;min-width:60px;text-align:center}
+.mb.get{background:#1f6feb;color:#fff}.mb.post{background:#238636;color:#fff}.mb.put{background:var(--yl);color:#000}.mb.del{background:#d73a49;color:#fff}.mb.opt{background:#6e7681;color:#fff}.mb.trace{background:#8b0000;color:#fff}
+.mb.danger{box-shadow:0 0 10px rgba(215,58,73,.7);animation:dp 1.5s ease-in-out infinite}
+@keyframes dp{0%,100%{box-shadow:0 0 10px rgba(215,58,73,.7)}50%{box-shadow:0 0 20px rgba(215,58,73,1)}}
+.ck-it{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--yl)}
+.ck-n{font-family:monospace;font-weight:bold;color:var(--bl2);font-size:12px;margin-bottom:6px}
+.ck-f{display:flex;justify-content:space-between;font-size:11px;padding:3px 0}
+.rd-st{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;font-size:11px;font-family:monospace;position:relative}
+.rd-st::before{content:'↓';position:absolute;bottom:-12px;left:20px;color:var(--pn);font-size:14px}
+.rd-st:last-child::before{display:none}
+.rd-c{background:var(--bl);color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:bold}
+.rd-c.wn{background:var(--yl);color:#000}.rd-c.bd{background:var(--rd)}
+.sk{background:linear-gradient(90deg,var(--bg3) 25%,rgba(168,85,247,.1) 50%,var(--bg3) 75%);background-size:200% 100%;animation:sk 1.5s infinite;border-radius:6px;height:14px;margin:8px 0}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.ft{text-align:center;padding:22px 10px;color:var(--mt);font-size:10px;border-top:1px solid var(--bd);margin-top:22px}
+.ft .pn{background:linear-gradient(90deg,var(--pn),var(--pn2),var(--pn));background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;font-size:18px;letter-spacing:3px;animation:gf 3s ease infinite;filter:drop-shadow(0 0 10px rgba(168,85,247,.4))}
+.ft .rl{font-size:10px;color:var(--mt);display:block;margin-top:4px}
+.tst-c{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:90%}
+.tst{background:var(--gl);backdrop-filter:blur(20px);border:1px solid var(--gb);color:var(--tx);padding:12px 18px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.4),0 0 30px rgba(168,85,247,.3);animation:ti .4s cubic-bezier(.4,0,.2,1);min-width:200px;text-align:center}
+.tst.success{border-color:var(--gn);color:var(--gn)}.tst.error{border-color:var(--rd);color:var(--rd)}.tst.info{border-color:var(--bl);color:var(--bl2)}.tst.pann{border-color:var(--pn);color:var(--pn)}
+@keyframes ti{from{opacity:0;transform:translateY(-20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.tst.out{animation:to .3s ease forwards}
+@keyframes to{to{opacity:0;transform:translateY(-20px) scale(.9)}}
+.fab{position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,var(--pn),var(--pn2));border:none;border-radius:50%;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 8px 30px rgba(168,85,247,.6);z-index:1000;transition:all .3s;animation:fp 2s ease-in-out infinite;font-weight:bold}
+.fab:hover{transform:scale(1.1) rotate(90deg)}
+@keyframes fp{0%,100%{box-shadow:0 8px 30px rgba(168,85,247,.6)}50%{box-shadow:0 8px 30px rgba(168,85,247,.9),0 0 70px rgba(168,85,247,.5)}}
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;margin:10px 0}
+.pt-c{background:var(--bg3);padding:9px 4px;border-radius:8px;text-align:center;font-size:10px;font-family:monospace;transition:all .3s;font-weight:600}
+.pt-c.open{background:linear-gradient(135deg,rgba(126,231,135,.2),rgba(35,134,54,.2));color:var(--gn);border:1px solid var(--gn);box-shadow:0 0 15px rgba(126,231,135,.3)}
+.pt-c.closed{background:rgba(255,123,114,.1);color:var(--rd);opacity:.6}
+.pt-c.check{animation:p 1s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+.cve-it{background:var(--bg3);padding:12px;border-radius:10px;margin-bottom:9px;border-left:3px solid var(--rd);transition:all .3s}
+.cve-it:hover{transform:translateX(4px)}
+.cve-id{font-family:monospace;font-weight:700;color:var(--rd);font-size:12px}
+.cve-d{font-size:11px;color:var(--mt);margin-top:6px;line-height:1.5}
+.cve-s{display:inline-block;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px}
+.cve-s.critical{background:#8b0000;color:#fff}.cve-s.high{background:#d73a49;color:#fff}.cve-s.med{background:var(--yl);color:#000}.cve-s.low{background:var(--gn);color:#000}
+.cf{position:fixed;width:10px;height:10px;z-index:9998;pointer-events:none;animation:cff 3s linear forwards}
+@keyframes cff{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body data-theme="dark">
+<canvas id="bgc"></canvas>
+<div class="mesh"></div>
+<div class="grid"></div>
+<div class="scan"></div>
+<div class="tst-c" id="tstC"></div>
+
+<div class="wrap">
+  <div class="hd">
+    <div class="clock"><div class="t" id="clkT">--:--:--</div><div id="clkD">---</div></div>
+    <div style="position:relative;display:inline-block"><div class="logo-ring"></div><div class="logo">🔍</div></div>
+    <h1>WebSec Scanner v4.3.1</h1>
+    <div class="br">by <span class="pn">PANN</span></div>
+    <div class="cr">🎨 Desainer: PANN</div>
+    <div class="tc">
+      <div class="ls"><button onclick="setLang('id')" id="lgId" class="on">ID</button><button onclick="setLang('en')" id="lgEn">EN</button></div>
+      <button class="cb" onclick="toggleTheme()" id="thBtn">🌙</button>
+      <button class="cb" onclick="toggleSound()" id="snBtn">🔊</button>
+      <button class="cb" onclick="toggleNotif()" id="ntBtn">🔔</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="st" onclick="showTab('history')"><div class="stv" id="stScans">0</div><div class="stl">Scans</div></div>
+    <div class="st" onclick="showTab('history')"><div class="stv" id="stAvg">0%</div><div class="stl">Avg Score</div></div>
+    <div class="st" onclick="openCmd()"><div class="stv">⌘K</div><div class="stl">Cmd</div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tb on" onclick="showTab('scan')" id="t-scan">🔍 Scan</div>
+    <div class="tb" onclick="showTab('port')" id="t-port">🔌 Port</div>
+    <div class="tb" onclick="showTab('whois')" id="t-whois">🌍 Whois</div>
+    <div class="tb" onclick="showTab('methods')" id="t-methods">🔧 Methods</div>
+    <div class="tb" onclick="showTab('cookies')" id="t-cookies">🍪 Cookies</div>
+    <div class="tb" onclick="showTab('redirect')" id="t-redirect">🔀 Redirect</div>
+    <div class="tb" onclick="showTab('dns')" id="t-dns">📡 DNS</div>
+    <div class="tb" onclick="showTab('ssl')" id="t-ssl">🔒 SSL</div>
+    <div class="tb" onclick="showTab('ip')" id="t-ip">📍 IP</div>
+    <div class="tb" onclick="showTab('tools')" id="t-tools">🛠️ Tools</div>
+    <div class="tb" onclick="showTab('deploy')" id="t-deploy">🚀 Deploy</div>
+    <div class="tb" onclick="showTab('history')" id="t-history">📜 Hist</div>
+    <div class="tb" onclick="showTab('about')" id="t-about">ℹ️</div>
+  </div>
+
+  <!-- SCAN -->
+  <div id="scan" class="sec on">
+    <div class="bx">
+      <label>Target URL</label>
+      <input id="tgt" type="text" placeholder="https://example.com" value="https://api.github.com" list="urlH">
+      <datalist id="urlH"></datalist>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:10px">
+        <input type="checkbox" id="proxy" checked style="width:auto;margin:0"><span>Pakai proxy (bypass CORS)</span>
+      </label>
+      <button class="bt bt-p" id="scanBtn" onclick="startScan()">🚀 Scan Sekarang</button>
+      <div class="bt-rw">
+        <button class="bt bt-b bt-sm" onclick="exportJSON()">📥 JSON</button>
+        <button class="bt bt-b bt-sm" onclick="exportPDF()">📄 PDF</button>
+        <button class="bt bt-b bt-sm" onclick="shareReport()">📤 Share</button>
+      </div>
+    </div>
+    <div class="ld" id="ld"><div class="sp"></div><p id="ldT">Scanning...</p></div>
+    <div id="res"></div>
+  </div>
+
+  <!-- PORT -->
+  <div id="port" class="sec">
+    <div class="bx">
+      <label>Host</label>
+      <input id="portH" type="text" placeholder="example.com" value="scanme.nmap.org">
+      <label>Ports (kosong = common)</label>
+      <input id="portL" type="text" placeholder="21,22,80,443">
+      <button class="bt bt-p" onclick="startPort()">🔌 Scan Port</button>
+    </div>
+    <div id="portR"></div>
+  </div>
+
+  <!-- WHOIS -->
+  <div id="whois" class="sec">
+    <div class="bx">
+      <label>Domain</label>
+      <input id="whoisD" type="text" placeholder="example.com" value="github.com">
+      <button class="bt bt-p" onclick="doWhois()">🌍 Whois Lookup</button>
+    </div>
+    <div id="whoisR"></div>
+  </div>
+
+  <!-- METHODS -->
+  <div id="methods" class="sec">
+    <div class="bx">
+      <label>URL Target</label>
+      <input id="methU" type="text" placeholder="https://example.com" value="https://api.github.com">
+      <button class="bt bt-p" onclick="checkMethods()">🔧 Cek HTTP Methods</button>
+    </div>
+    <div class="wb">⚠️ PUT/DELETE/TRACE yang enabled tanpa proteksi = bahaya</div>
+    <div id="methR"></div>
+  </div>
+
+  <!-- COOKIES -->
+  <div id="cookies" class="sec">
+    <div class="bx">
+      <label>URL</label>
+      <input id="ckU" type="text" placeholder="https://example.com" value="https://github.com">
+      <button class="bt bt-p" onclick="checkCookies()">🍪 Cek Cookie Security</button>
+    </div>
+    <div id="ckR"></div>
+  </div>
+
+  <!-- REDIRECT -->
+  <div id="redirect" class="sec">
+    <div class="bx">
+      <label>URL (pakai http:// buat test)</label>
+      <input id="rdU" type="text" placeholder="http://example.com" value="http://github.com">
+      <button class="bt bt-p" onclick="traceRedirect()">🔀 Trace Redirect</button>
+    </div>
+    <div id="rdR"></div>
+  </div>
+
+  <!-- DNS -->
+  <div id="dns" class="sec">
+    <div class="bx">
+      <label>Domain</label>
+      <input id="dnsD" type="text" placeholder="example.com" value="github.com">
+      <button class="bt bt-p" onclick="doDNS()">📡 DNS Lookup</button>
+    </div>
+    <div id="dnsR"></div>
+  </div>
+
+  <!-- SSL -->
+  <div id="ssl" class="sec">
+    <div class="bx">
+      <label>Domain</label>
+      <input id="sslD" type="text" placeholder="example.com" value="github.com">
+      <button class="bt bt-p" onclick="doSSL()">🔒 Cek SSL</button>
+    </div>
+    <div id="sslR"></div>
+  </div>
+
+  <!-- IP -->
+  <div id="ip" class="sec">
+    <div class="bx">
+      <label>IP / Domain</label>
+      <input id="ipI" type="text" placeholder="8.8.8.8" value="8.8.8.8">
+      <button class="bt bt-p" onclick="doIP()">📍 IP Lookup</button>
+    </div>
+    <div id="ipR"></div>
+  </div>
+
+  <!-- TOOLS -->
+  <div id="tools" class="sec">
+    <div class="bx">
+      <label>🔐 Password Strength</label>
+      <input id="pw" type="text" placeholder="Password..." oninput="checkPw()">
+      <div id="pwR"></div>
+    </div>
+    <div class="bx">
+      <label>#️⃣ Hash Generator</label>
+      <input id="hsI" type="text" value="PANN">
+      <select id="hsT"><option value="MD5">MD5</option><option value="SHA-1">SHA-1</option><option value="SHA-256" selected>SHA-256</option><option value="SHA-512">SHA-512</option></select>
+      <button class="bt bt-p" onclick="doHash()">Generate</button>
+      <div id="hsR"></div>
+    </div>
+  </div>
+
+  <!-- DEPLOY v4.3.1 -->
+  <div id="deploy" class="sec">
+    <div class="bx" style="text-align:center">
+      <h1 style="background:linear-gradient(90deg,var(--pn),var(--bl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:22px;font-weight:900;margin-bottom:6px">Deploy Website</h1>
+      <p style="font-size:11px;color:var(--mt);margin-bottom:18px">By PANN · Powered by Vercel</p>
+      <div style="width:120px;height:120px;margin:0 auto 18px;border-radius:20px;background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(88,166,255,.2));display:flex;align-items:center;justify-content:center;font-size:60px;border:2px dashed var(--gb)" id="deployLogo">🚀</div>
+      <p style="font-size:10px;color:var(--mt);margin-bottom:18px">Credit by PANN</p>
+      <div style="display:flex;gap:6px;margin-bottom:14px;background:var(--bg3);padding:4px;border-radius:10px">
+        <button id="modeB-btn" onclick="switchMode('B')" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--pn),var(--pn2));color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">📝 Paste HTML</button>
+        <button id="modeA-btn" onclick="switchMode('A')" style="flex:1;padding:10px;background:transparent;color:var(--mt);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">📁 Upload File</button>
+      </div>
+      <div style="text-align:left">
+        <label>Nama Website</label>
+        <input id="depName" type="text" placeholder="contoh: webseccanner">
+        <div style="font-size:10px;color:var(--mt);margin-top:-8px;margin-bottom:12px">⚠️ Huruf kecil, angka, strip (-) aja. Subdomain: <b>namatuan.vercel.app</b></div>
+        <div id="modeB-panel">
+          <label>📝 Paste HTML</label>
+          <textarea id="depHtml" rows="10" placeholder="<!DOCTYPE html>..." style="font-family:monospace;font-size:11px;min-height:200px;resize:vertical"></textarea>
+          <div style="display:flex;gap:6px;margin-top:-4px;margin-bottom:12px">
+            <button onclick="loadTemplate('simple')" style="flex:1;padding:8px;background:var(--bg3);color:var(--tx);border:1px solid var(--bd);border-radius:6px;font-size:10px;cursor:pointer">📄 Simple</button>
+            <button onclick="loadTemplate('portfolio')" style="flex:1;padding:8px;background:var(--bg3);color:var(--tx);border:1px solid var(--bd);border-radius:6px;font-size:10px;cursor:pointer">🎨 Portfolio</button>
+            <button onclick="clearHtml()" style="flex:1;padding:8px;background:var(--bg3);color:var(--rd);border:1px solid var(--bd);border-radius:6px;font-size:10px;cursor:pointer">🗑️ Clear</button>
+          </div>
+          <div style="font-size:10px;color:var(--mt);margin-bottom:12px">💡 Paste HTML tuan di atas. Nanti jadi file <code>index.html</code> di Vercel.</div>
+        </div>
+        <div id="modeA-panel" style="display:none">
+          <label>📁 Upload File HTML</label>
+          <div style="background:var(--bg3);border:2px dashed var(--bd);border-radius:12px;padding:20px;text-align:center;margin-bottom:12px;cursor:pointer" id="dropZone" onclick="document.getElementById('depFile').click()">
+            <div style="font-size:36px;margin-bottom:8px">📁</div>
+            <div style="font-size:12px;color:var(--mt)" id="dropText">Tap untuk pilih file<br><span style="font-size:10px">Bisa .html, .css, .js (multi-file)</span></div>
+          </div>
+          <input id="depFile" type="file" accept=".html,.htm,.css,.js" multiple style="display:none" onchange="handleFiles(event)">
+        </div>
+        <label>Vercel Token (wajib 1x setup)</label>
+        <input id="depToken" type="password" placeholder="vercel_xxxxxxxxxxxx">
+        <div style="font-size:10px;color:var(--mt);margin-top:-8px;margin-bottom:12px">Dapetin di <a href="https://vercel.com/account/tokens" target="_blank" style="color:var(--bl)">vercel.com/account/tokens</a></div>
+      </div>
+      <button id="depBtn" onclick="deployWebsite()" style="width:100%;padding:16px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:900;cursor:pointer;margin-top:8px;letter-spacing:1px;box-shadow:0 4px 20px rgba(34,197,94,.4)">🚀 DEPLOY</button>
+      <div id="fileList" style="text-align:left;margin-top:12px"></div>
+    </div>
+    <div id="depStatus"></div>
+    <div id="depResult"></div>
+    <div class="bx">
+      <h2 style="color:var(--bl2);font-size:14px;margin-bottom:10px">📜 History Deploy</h2>
+      <div id="depHistory"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="history" class="sec">
+    <div class="bx">
+      <canvas id="chart" style="width:100%;height:80px"></canvas>
+      <div class="bt-rw" style="margin-top:10px">
+        <button class="bt bt-r bt-sm" onclick="clearHist()">🗑️ Hapus</button>
+        <button class="bt bt-b bt-sm" onclick="exportHist()">📥 Export</button>
+      </div>
+    </div>
+    <div id="histR"></div>
+  </div>
+
+  <!-- ABOUT -->
+  <div id="about" class="sec">
+    <div class="bx">
+      <h2 style="color:var(--pn);margin-bottom:12px">🔍 WebSec Scanner v4.3.1</h2>
+      <p style="font-size:12px;line-height:1.6;margin-bottom:15px">Security scanner + network tools + deploy — full browser.</p>
+      <h3 style="color:var(--pn);font-size:13px;margin:15px 0 8px">👤 Kredit</h3>
+      <div class="it"><span class="il">Pembuat</span><span class="iv pn" style="font-weight:bold">PANN</span></div>
+      <div class="it"><span class="il">Desainer</span><span class="iv pn" style="font-weight:bold">PANN</span></div>
+      <div class="it"><span class="il">Version</span><span class="iv">4.3.1</span></div>
+      <h3 style="color:var(--bl2);font-size:13px;margin:15px 0 8px">✨ Fitur</h3>
+      <ul style="font-size:12px;line-height:1.9;margin-left:20px">
+        <li>🔍 Security headers + tech fingerprint</li>
+        <li>🔌 Port scanner</li>
+        <li>🌍 Whois lookup</li>
+        <li>🔧 HTTP methods checker</li>
+        <li>🍪 Cookie security checker</li>
+        <li>🔀 Redirect chain analyzer</li>
+        <li>📡 DNS, 🔒 SSL, 📍 IP lookup</li>
+        <li>🛠️ Password + Hash tools</li>
+        <li>🚀 Deploy via Vercel (paste/upload)</li>
+        <li>🎨 UI: Particles, Glass, Glow, Toast</li>
+      </ul>
+      <p style="font-size:11px;line-height:1.6;color:var(--yl);margin-top:15px">⚠️ Hanya scan website yang tuan miliki atau punya izin.</p>
+    </div>
+  </div>
+
+  <div class="ft">
+    ⚠️ Educational Scanner<br>
+    <span class="pn">PANN</span>
+    <span class="rl">🎨 Desainer: PANN</span>
+    <div style="margin-top:6px">v4.3.1 · <span id="onSt">●</span> Online</div>
+  </div>
+</div>
+
+<button class="fab" onclick="openCmd()">⌘</button>
+<div id="cpB" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--gn),#2ea043);color:#fff;padding:11px 22px;border-radius:22px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:all .4s;z-index:999;box-shadow:0 8px 25px rgba(126,231,135,.5)">✅ Tersalin!</div>
+
+<div id="cmdO" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);z-index:9999;display:none;align-items:flex-start;justify-content:center;padding-top:80px" onclick="if(event.target===this)closeCmd()">
+  <div style="width:90%;max-width:500px;background:var(--gl);backdrop-filter:blur(30px);border:1px solid var(--gb);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 50px rgba(168,85,247,.3);overflow:hidden">
+    <input id="cmdI" style="width:100%;padding:16px 18px;background:transparent;border:none;border-bottom:1px solid var(--bd);color:var(--tx);font-size:15px;font-family:inherit;outline:none" placeholder="Ketik command..." oninput="filterCmd()" onkeydown="cmdNav(event)">
+    <div id="cmdL" style="max-height:300px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ============ CONFIG ============
+const SH={'strict-transport-security':{n:'HSTS',r:'high'},'content-security-policy':{n:'CSP',r:'high'},'x-frame-options':{n:'X-Frame-Options',r:'med'},'x-content-type-options':{n:'X-Content-Type',r:'med'},'referrer-policy':{n:'Referrer-Policy',r:'low'},'permissions-policy':{n:'Permissions-Policy',r:'low'}};
+const IL=['server','x-powered-by','x-aspnet-version','via'];
+const PROXIES=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?','https://api.codetabs.com/v1/proxy?quest='];
+const PORTS=[21,22,23,25,53,80,110,143,443,445,993,995,1433,1521,3306,3389,5432,5900,6379,8080,8443,8888,9200,27017];
+const SK='websec_hist_v431',TK='websec_theme_v431',NK='websec_notif_v431',SND='websec_snd_v431',DEPK='websec_dep_tok_v431',DEPH='websec_dep_hist_v431';
+let lastR=null,sndOn=localStorage.getItem(SND)!=='false',actx=null,notifOn=localStorage.getItem(NK)==='true';
+let curLang=localStorage.getItem('websec_lang')||'id';
+let depMode='B',depFiles=[];
+
+// ============ I18N ============
+function setLang(l){curLang=l;localStorage.setItem('websec_lang',l);document.getElementById('lgId').classList.toggle('on',l==='id');document.getElementById('lgEn').classList.toggle('on',l==='en')}
+
+// ============ AUDIO ============
+function playSnd(t='click'){if(!sndOn)return;try{if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.connect(g);g.connect(actx.destination);const f={click:800,success:1200,error:300,scan:600,pop:1000};o.frequency.value=f[t]||800;o.type='sine';g.gain.setValueAtTime(.05,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.1);o.start();o.stop(actx.currentTime+.1)}catch(e){}}
+function toggleSound(){sndOn=!sndOn;localStorage.setItem(SND,sndOn);document.getElementById('snBtn').textContent=sndOn?'🔊':'🔇';showToast(sndOn?'🔊 ON':'🔇 OFF','info',1200)}
+function haptic(p=[10]){if(navigator.vibrate)navigator.vibrate(p)}
+
+// ============ TOAST ============
+function showToast(m,t='info',d=2500){const c=document.getElementById('tstC');const el=document.createElement('div');el.className='tst '+t;el.textContent=m;c.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300)},d)}
+
+// ============ COPY ============
+function copyText(t){navigator.clipboard.writeText(t).then(()=>{showToast('✅ Tersalin!','success',1500)}).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast('✅ Tersalin!','success',1500)})}
+
+// ============ UTIL ============
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function fT(url,opt={},to=10000){const c=new AbortController();const t=setTimeout(()=>c.abort(),to);try{const r=await fetch(url,{...opt,signal:c.signal});clearTimeout(t);return r}catch(e){clearTimeout(t);if(e.name==='AbortError')throw new Error('Timeout '+to/1000+'s');throw e}}
+async function fetchProxy(target){let last=null;for(const p of PROXIES){try{const r=await fT(p+encodeURIComponent(target),{},12000);if(r.ok||r.status<500)return r}catch(e){last=e}}throw new Error('Semua proxy gagal: '+(last?.message||'unknown'))}
+
+// ============ THEME ============
+function toggleTheme(){const c=document.body.getAttribute('data-theme');const n=c==='dark'?'light':'dark';document.body.setAttribute('data-theme',n);document.getElementById('thBtn').textContent=n==='dark'?'🌙':'☀️';localStorage.setItem(TK,n);playSnd('click')}
+function loadTheme(){const s=localStorage.getItem(TK)||'dark';document.body.setAttribute('data-theme',s);document.getElementById('thBtn').textContent=s==='dark'?'🌙':'☀️'}
+
+// ============ NOTIF ============
+async function toggleNotif(){if(!('Notification'in window)){showToast('❌ Gak support','error');return}if(Notification.permission==='default')await Notification.requestPermission();if(Notification.permission!=='granted'){showToast('❌ Diblokir','error');return}notifOn=!notifOn;localStorage.setItem(NK,notifOn);document.getElementById('ntBtn').textContent=notifOn?'🔔':'🔕';showToast(notifOn?'🔔 ON':'🔕 OFF','info')}
+function loadNotif(){document.getElementById('ntBtn').textContent=notifOn?'🔔':'🔕'}
+function showNotif(t,b){if(!notifOn||Notification.permission!=='granted')return;try{new Notification(t,{body:b})}catch(e){}}
+
+// ============ TABS ============
+function showTab(id){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));const s=document.getElementById(id),t=document.getElementById('t-'+id);if(s)s.classList.add('on');if(t)t.classList.add('on');if(id==='history'){renderHist();renderChart()}playSnd('click');haptic([5])}
+
+// ============ COMMAND PALETTE ============
+const CMDS=[
+{k:'scan',l:'🔍 Scan URL',a:()=>{showTab('scan');focusIn('tgt')}},
+{k:'port',l:'🔌 Port',a:()=>{showTab('port');focusIn('portH')}},
+{k:'whois',l:'🌍 Whois',a:()=>{showTab('whois');focusIn('whoisD')}},
+{k:'methods',l:'🔧 Methods',a:()=>{showTab('methods');focusIn('methU')}},
+{k:'cookies',l:'🍪 Cookies',a:()=>{showTab('cookies');focusIn('ckU')}},
+{k:'redirect',l:'🔀 Redirect',a:()=>{showTab('redirect');focusIn('rdU')}},
+{k:'dns',l:'📡 DNS',a:()=>{showTab('dns');focusIn('dnsD')}},
+{k:'ssl',l:'🔒 SSL',a:()=>{showTab('ssl');focusIn('sslD')}},
+{k:'ip',l:'📍 IP',a:()=>{showTab('ip');focusIn('ipI')}},
+{k:'tools',l:'🛠️ Tools',a:()=>showTab('tools')},
+{k:'deploy',l:'🚀 Deploy',a:()=>showTab('deploy')},
+{k:'dark',l:'🌙 Dark',a:()=>{if(document.body.getAttribute('data-theme')!=='dark')toggleTheme()}},
+{k:'light',l:'☀️ Light',a:()=>{if(document.body.getAttribute('data-theme')!=='light')toggleTheme()}},
+{k:'hist',l:'📜 History',a:()=>showTab('history')},
+{k:'about',l:'ℹ️ About',a:()=>showTab('about')}];
+let cmdIx=0;
+function openCmd(){document.getElementById('cmdO').style.display='flex';document.getElementById('cmdI').value='';document.getElementById('cmdI').focus();filterCmd();playSnd('pop')}
+function closeCmd(){document.getElementById('cmdO').style.display='none'}
+function filterCmd(){const q=document.getElementById('cmdI').value.toLowerCase();const f=CMDS.filter(c=>c.l.toLowerCase().includes(q)||c.k.includes(q));cmdIx=0;document.getElementById('cmdL').innerHTML=f.map((c,i)=>`<div onclick="runCmd(${CMDS.indexOf(c)})" style="padding:12px 18px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--bd);${i===0?'background:rgba(168,85,247,.15)':''}" class="ci">${c.l}</div>`).join('')}
+function cmdNav(e){const items=document.querySelectorAll('.ci');if(e.key==='ArrowDown'){e.preventDefault();cmdIx=Math.min(cmdIx+1,items.length-1);items.forEach((el,i)=>el.style.background=i===cmdIx?'rgba(168,85,247,.15)':'')}else if(e.key==='ArrowUp'){e.preventDefault();cmdIx=Math.max(cmdIx-1,0);items.forEach((el,i)=>el.style.background=i===cmdIx?'rgba(168,85,247,.15)':'')}else if(e.key==='Enter'){const items=document.querySelectorAll('.ci');if(items[cmdIx]){const sel=[...document.querySelectorAll('.ci')][cmdIx];sel.click()}}else if(e.key==='Escape')closeCmd()}
+function runCmd(i){CMDS[i].a();closeCmd();playSnd('click')}
+function focusIn(id){setTimeout(()=>{const el=document.getElementById(id);if(el){el.focus();el.select()}},200)}
+
+// ============ KEYBOARD ============
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openCmd()}if((e.ctrlKey||e.metaKey)&&e.key>='1'&&e.key<='9'){e.preventDefault();const tabs=['scan','port','whois','methods','cookies','redirect','dns','ssl','ip'];const i=parseInt(e.key)-1;if(tabs[i])showTab(tabs[i])}if(e.key==='Escape')closeCmd()});
+
+// ============ CLOCK ============
+function updClk(){const n=new Date();document.getElementById('clkT').textContent=n.toLocaleTimeString('id-ID',{hour12:false});document.getElementById('clkD').textContent=n.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})}
+setInterval(updClk,1000);updClk();
+
+// ============ CONFETTI ============
+let cfd=false;
+function confetti(){if(cfd)return;cfd=true;setTimeout(()=>cfd=false,3000);const c=['#a855f7','#58a6ff','#7ee787','#f0b72f','#d946ef'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='cf';d.style.left=Math.random()*100+'%';d.style.background=c[Math.floor(Math.random()*c.length)];d.style.animationDelay=Math.random()*.5+'s';d.style.borderRadius=Math.random()>.5?'50%':'0';document.body.appendChild(d);setTimeout(()=>d.remove(),3500)}}
+
+// ============ PARTICLES ============
+(function(){const c=document.getElementById('bgc'),x=c.getContext('2d');let p=[],w,h;function r(){w=c.width=innerWidth;h=c.height=innerHeight}r();addEventListener('resize',r);const N=Math.min(50,Math.floor(innerWidth/15));for(let i=0;i<N;i++)p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.8+.4,c:Math.random()>.5?'168,85,247':'88,166,255'});function d(){x.clearRect(0,0,w,h);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>w)a.vx*=-1;if(a.y<0||a.y>h)a.vy*=-1;x.beginPath();x.arc(a.x,a.y,a.r,0,Math.PI*2);x.fillStyle=`rgba(${a.c},.6)`;x.fill();for(let j=i+1;j<p.length;j++){const b=p[j],dx=a.x-b.x,dy=a.y-b.y,ds=Math.sqrt(dx*dx+dy*dy);if(ds<130){x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.strokeStyle=`rgba(${a.c},${.15*(1-ds/130)})`;x.lineWidth=.6;x.stroke()}}}requestAnimationFrame(d)}d()})();
+
+// ============ SCAN ============
+async function startScan(){const u=document.getElementById('tgt').value.trim();if(!u){showToast('❌ URL!','error');return}const t=u.startsWith('http')?u:'https://'+u;const px=document.getElementById('proxy').checked;const b=document.getElementById('scanBtn');b.disabled=true;showLd('Analisis '+t);document.getElementById('res').innerHTML='';showToast('🚀 Scan...','pann',1500);playSnd('scan');haptic([20]);try{const r=await scanUrl(t,px);lastR=r;renderScan(r);saveHist(r);updStats();updUrlH();if(r.maxScore>0&&!r.corsBlocked){const p=Math.round(r.score/r.maxScore*100);showToast(`✅ ${p}%`,p>=70?'success':p>=40?'info':'error',2500);showNotif('🔍 Scan',`${t} — ${p}%`);playSnd(p>=70?'success':'click');if(p>=90)confetti()}else{showToast('✅ Selesai','success')}}catch(e){document.getElementById('res').innerHTML=`<div class="eb">❌ ${esc(e.message)}</div><div class="ib">💡 Coba aktifkan proxy, atau scan <code>https://api.github.com</code></div>`;showToast('❌ Gagal','error');playSnd('error')}finally{hideLd();b.disabled=false}}
+
+async function scanUrl(t,px){const r={url:t,timestamp:new Date().toISOString(),headers:null,tech:[],leaks:[],score:0,maxScore:0,status:null};let res,ho={};if(px){const pr=await fetchProxy(t);r.status=pr.status;r.corsBlocked=true;const tx=(await pr.text()).toLowerCase();detTech(tx,'',r);r.note='Proxy mode: konten kebaca, header origin gak bisa';return r}try{res=await fT(t,{method:'GET',mode:'cors',redirect:'follow',cache:'no-cache'},10000)}catch(e){throw new Error(e.message+' — aktifkan proxy')}r.status=res.status;res.headers.forEach((v,k)=>ho[k.toLowerCase()]=v);r.headers=ho;if(Object.keys(ho).length<=1)r.corsBlocked=true;let s=0,m=0;for(const[k,i]of Object.entries(SH)){const w={high:3,med:2,low:1}[i.r];m+=w;if(ho[k])s+=w}r.score=s;r.maxScore=m;r.leaks=IL.filter(h=>ho[h]).map(h=>({name:h,value:ho[h]}));try{const tx=(await res.text()).toLowerCase();detTech(tx,JSON.stringify(ho).toLowerCase(),r)}catch(e){}return r}
+
+function detTech(tx,hs,r){const sg={WordPress:['wp-content','wp-includes','wp-json'],React:['_reactrootcontainer','react.development'],Vue:['vue.js','__vue__'],Angular:['ng-version','ng-app'],jQuery:['jquery.min.js'],Bootstrap:['bootstrap.min.css'],Tailwind:['tailwind'],Cloudflare:['cf-ray','__cfduid'],Nginx:['nginx'],Apache:['apache'],PHP:['phpsessid','.php'],'ASP.NET':['asp.net'],Next:['__next'],Nuxt:['__nuxt'],Shopify:['shopify'],'Google Analytics':['google-analytics','gtag'],'Font Awesome':['font-awesome'],'Google Fonts':['fonts.googleapis'],'GitHub Pages':['github.io'],Vercel:['vercel'],Netlify:['netlify']};for(const[t,s]of Object.entries(sg))for(const x of s)if(tx.includes(x)||hs.includes(x)){if(!r.tech.includes(t))r.tech.push(t);break}}
+
+function renderScan(r){let h=`<div class="rs"><h2>🎯 Target</h2><div class="it"><span class="il">URL</span><span class="iv nt">${esc(r.url)}</span></div>${r.status?`<div class="it"><span class="il">Status</span><span class="iv ${r.status<400?'gd':'bd'}">${r.status}</span></div>`:''}<div class="it"><span class="il">Waktu</span><span class="iv">${new Date(r.timestamp).toLocaleString('id-ID')}</span></div></div>`;if(r.corsBlocked)h+=`<div class="wb">⚠️ ${r.note||'CORS mode'}</div>`;if(r.headers&&!r.corsBlocked){h+=`<div class="rs"><h2>📋 Security Headers</h2>`;for(const[k,i]of Object.entries(SH)){const p=!!r.headers[k];h+=`<div class="it"><span class="il">${i.n} <span class="bg ${i.r}">${i.r.toUpperCase()}</span></span><span class="iv ${p?'gd':'bd'}">${p?'✓':'✗'}</span></div>`}h+=`</div>`}if(r.leaks.length){h+=`<div class="rs"><h2>⚠️ Info Leaks</h2>`;r.leaks.forEach(l=>h+=`<div class="it"><span class="il">${l.name}</span><span class="iv wn">${esc(l.value)}</span></div>`);h+=`</div>`}if(r.tech.length){h+=`<div class="rs"><h2>🔧 Tech <span class="cnt">${r.tech.length}</span></h2>`;r.tech.forEach(t=>h+=`<div class="it"><span class="il">${t}</span><span class="iv gd">✓</span></div>`);h+=`</div>`}if(r.maxScore>0&&!r.corsBlocked){const p=Math.round(r.score/r.maxScore*100);const c=p>=70?'gd':p>=40?'wn':'bd';const col=p>=70?'#7ee787':p>=40?'#f0b72f':'#ff7b72';const circ=2*Math.PI*45,off=circ-(p/100)*circ;h+=`<div class="rs"><h2>🎯 Score</h2><div class="gauge-w"><svg class="gauge" width="110" height="110" viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="45"></circle><circle class="gauge-fl" cx="60" cy="60" r="45" stroke="${col}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" style="animation:ga 1.5s cubic-bezier(.4,0,.2,1) forwards;--t:${off}" id="gf"></circle></svg><div class="gauge-t"><div class="gauge-p ${c}">${p}%</div><div class="gauge-l">${r.score}/${r.maxScore}</div></div></div><style>@keyframes ga{to{stroke-dashoffset:var(--t)}}</style></div>`}document.getElementById('res').innerHTML=h}
+
+// ============ PORT ============
+async function startPort(){const h=document.getElementById('portH').value.trim();if(!h){showToast('❌ Host!','error');return}const cp=document.getElementById('portL').value.trim();const ps=cp?cp.split(',').map(p=>parseInt(p.trim())).filter(p=>p>0&&p<65536):PORTS;const d=document.getElementById('portR');d.innerHTML=`<div class="rs"><h2>🔌 ${esc(h)}</h2><div class="ib">Scan ${ps.length} port...</div><div class="pt-grid" id="ptG"></div></div>`;const g=document.getElementById('ptG');g.innerHTML=ps.map(p=>`<div class="pt-c check" id="p-${p}">:${p}</div>`).join('');showToast(`🔌 ${ps.length} port...`,'pann');playSnd('scan');const pr=ps.map(async p=>{const c=document.getElementById(`p-${p}`);let st='closed';try{const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),2000);await fetch(`http://${h}:${p}/`,{mode:'no-cors',signal:ctrl.signal});clearTimeout(t);st='open'}catch(e){st=e.name==='AbortError'?'closed':'open'}c.className=`pt-c ${st}`;c.textContent=`:${p} ${st==='open'?'✓':'✗'}`;return{p,st}});const rs=await Promise.all(pr);const op=rs.filter(r=>r.st==='open');d.innerHTML+=`<div class="rs"><h2>📊 Hasil</h2><div class="it"><span class="il">Total</span><span class="iv">${ps.length}</span></div><div class="it"><span class="il">Open</span><span class="iv gd">${op.length}</span></div><div class="it"><span class="il">Closed</span><span class="iv bd">${ps.length-op.length}</span></div>${op.length?`<div class="it"><span class="il">Ports</span><span class="iv gd">${op.map(r=>r.p).join(', ')}</span></div>`:''}<div class="ib">⚠️ Akurasi terbatas browser</div></div>`;showToast(`✅ ${op.length} open`,'success');playSnd('success')}
+
+// ============ WHOIS ============
+async function doWhois(){const d0=document.getElementById('whoisD').value.trim().replace(/^https?:\/\//,'').split('/')[0];if(!d0){showToast('❌ Domain!','error');return}const d=document.getElementById('whoisR');d.innerHTML=`<div class="rs"><h2>🌍 ${esc(d0)}</h2><div class="sk" style="width:80%"></div><div class="sk" style="width:60%"></div><div class="sk" style="width:90%"></div></div>`;showToast('🌍 Whois...','pann');playSnd('scan');try{const r=await fetchProxy(`https://www.whois.com/whois/${encodeURIComponent(d0)}`);const tx=await r.text();const m=tx.match(/<pre[^>]*id="registryData"[^>]*>([\s\S]*?)<\/pre>/i)||tx.match(/<pre[^>]*>([\s\S]*?)<\/pre>/i);const content=m?m[1]:tx;const cl=content.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim().substring(0,3000);let h=`<div class="rs"><h2>🌍 Whois: ${esc(d0)}</h2><pre style="font-size:10px;white-space:pre-wrap;max-height:400px;overflow-y:auto;background:var(--bg3);padding:12px;border-radius:8px;">${esc(cl)}</pre></div>`;d.innerHTML=h;showToast('✅ Whois OK','success');playSnd('success')}catch(e){d.innerHTML=`<div class="eb">❌ ${esc(e.message)}</div><div class="ib">Buka manual: <a href="https://www.whois.com/whois/${encodeURIComponent(d0)}" target="_blank" style="color:var(--bl)">whois.com</a></div>`;showToast('❌ Gagal','error')}}
+
+// ============ METHODS ============
+async function checkMethods(){const u=document.getElementById('methU').value.trim();if(!u){showToast('❌ URL!','error');return}const full=u.startsWith('http')?u:'https://'+u;const d=document.getElementById('methR');d.innerHTML=`<div class="ld on"><div class="sp"></div><p>Cek methods...</p></div>`;showToast('🔧 Cek...','pann');playSnd('scan');const ms=['GET','POST','PUT','DELETE','OPTIONS','PATCH','HEAD','TRACE'];const dg=['PUT','DELETE','TRACE'];let h=`<div class="rs"><h2>🔧 HTTP Methods: ${esc(full)}</h2>`;for(const m of ms){let st='—',cl='nt';try{const r=await fetchProxy(full).catch(()=>fT(full,{method:m,mode:'cors'},5000));st=r.status;if([200,201,204].includes(r.status))cl=dg.includes(m)?'bd':'gd';else if([401,403].includes(r.status))cl='wn'}catch(e){st='blocked'}const dcls=dg.includes(m)&&cl==='bd'?' danger':'';const mcls=m==='DELETE'?'del':m==='OPTIONS'?'opt':m==='TRACE'?'trace':m.toLowerCase();h+=`<div class="it"><span class="il"><span class="mb ${mcls}${dcls}">${m}</span></span><span class="iv ${cl}">${st}</span></div>`}h+=`</div>`;d.innerHTML=h;showToast('✅ Done','success');playSnd('success')}
+
+// ============ COOKIES ============
+async function checkCookies(){const u=document.getElementById('ckU').value.trim();if(!u){showToast('❌ URL!','error');return}const full=u.startsWith('http')?u:'https://'+u;const d=document.getElementById('ckR');d.innerHTML=`<div class="ld on"><div class="sp"></div><p>Cek cookies...</p></div>`;showToast('🍪 Cek...','pann');try{const r=await fT(full,{method:'GET',mode:'cors',credentials:'include'},8000).catch(()=>fetchProxy(full));const sc=r.headers.get('set-cookie')||'';const all=[];r.headers.forEach((v,k)=>{if(k.toLowerCase()==='set-cookie')all.push(v)});let h=`<div class="rs"><h2>🍪 Cookies: ${esc(full)}</h2>`;if(all.length===0&&!sc){h+=`<div class="ib">ℹ️ Gak ada cookie atau CORS block header Set-Cookie</div><div class="ib">💡 Cek real: DevTools → Application → Cookies</div>`}else{const cks=all.length?all:[sc];cks.forEach((c,i)=>{const parts=c.split(';').map(p=>p.trim());const nv=parts[0].split('=');const name=nv[0];const flags={Secure:parts.some(p=>p.toLowerCase()==='secure'),HttpOnly:parts.some(p=>p.toLowerCase()==='httponly'),SameSite:parts.find(p=>p.toLowerCase().startsWith('samesite'))?.split('=')[1]||'None',Path:parts.find(p=>p.toLowerCase().startsWith('path'))?.split('=')[1]||'—'};h+=`<div class="ck-it"><div class="ck-n">${i+1}. ${esc(name)}</div><div class="ck-f"><span>Secure</span><span class="${flags.Secure?'gd':'bd'}">${flags.Secure?'✓':'✗ MISSING'}</span></div><div class="ck-f"><span>HttpOnly</span><span class="${flags.HttpOnly?'gd':'bd'}">${flags.HttpOnly?'✓':'✗ MISSING'}</span></div><div class="ck-f"><span>SameSite</span><span class="${flags.SameSite!=='None'?'gd':'wn'}">${esc(flags.SameSite)}</span></div><div class="ck-f"><span>Path</span><span class="nt">${esc(flags.Path)}</span></div></div>`})}h+=`</div>`;d.innerHTML=h;showToast('✅ Done','success')}catch(e){d.innerHTML=`<div class="eb">❌ ${esc(e.message)}</div>`}}
+
+// ============ REDIRECT ============
+async function traceRedirect(){const u=document.getElementById('rdU').value.trim();if(!u){showToast('❌ URL!','error');return}const full=u.startsWith('http')?u:'http://'+u;const d=document.getElementById('rdR');d.innerHTML=`<div class="ld on"><div class="sp"></div><p>Trace redirect...</p></div>`;showToast('🔀 Trace...','pann');playSnd('scan');try{const r=await fT(full,{method:'GET',redirect:'follow',mode:'cors'},8000).catch(()=>fetchProxy(full));const fu=r.url||full;const rd=r.redirected;const st=r.status;let h=`<div class="rs"><h2>🔀 Redirect Chain</h2><div class="rd-st"><span class="rd-c ${st>=300&&st<400?'wn':'gd'}">${st}</span><span style="flex:1;word-break:break-all">${esc(full)}</span></div>`;if(rd&&fu!==full){h+=`<div class="rd-st"><span class="rd-c gd">200</span><span style="flex:1;word-break:break-all">${esc(fu)}</span></div>`;h+=`<div class="pb">✅ Redirect: <b>${esc(full)}</b> → <b>${esc(fu)}</b></div>`;if(full.startsWith('http://')&&fu.startsWith('https://'))h+=`<div class="ib">✅ HTTP → HTTPS = AMAN</div>`;else if(full.startsWith('http://')&&fu.startsWith('http://'))h+=`<div class="wb">⚠️ HTTP → HTTP = BAHAYA!</div>`;try{const o=new URL(full).hostname,f=new URL(fu).hostname;if(o!==f)h+=`<div class="wb">⚠️ Cross-domain: <b>${o}</b> → <b>${f}</b></div>`}catch(e){}}else h+=`<div class="ib">ℹ️ Gak ada redirect / CORS block</div>`;h+=`</div>`;d.innerHTML=h;showToast('✅ Done','success');playSnd('success')}catch(e){d.innerHTML=`<div class="eb">❌ ${esc(e.message)}</div>`}}
+
+// ============ DNS ============
+async function doDNS(){const d0=document.getElementById('dnsD').value.trim();if(!d0){showToast('❌ Domain!','error');return}const d=document.getElementById('dnsR');d.innerHTML=`<div class="ld on"><div class="sp"></div><p>DNS...</p></div>`;const ts=['A','AAAA','MX','NS','TXT','CNAME','SOA'];let h=`<div class="rs"><h2>📡 DNS: ${esc(d0)}</h2>`;for(const t of ts){try{const r=await fT(`https://dns.google/resolve?name=${encodeURIComponent(d0)}&type=${t}`,{},8000);const j=await r.json();if(j.Answer&&j.Answer.length)j.Answer.forEach(a=>h+=`<div class="it"><span class="il">${t}</span><span class="iv gd">${esc(a.data)}</span></div>`);else h+=`<div class="it"><span class="il">${t}</span><span class="iv bd">— none</span></div>`}catch(e){h+=`<div class="it"><span class="il">${t}</span><span class="iv wn">error</span></div>`}}h+=`</div>`;d.innerHTML=h;showToast('✅ DNS','success')}
+
+// ============ SSL ============
+async function doSSL(){const d0=document.getElementById('sslD').value.trim();if(!d0){showToast('❌ Domain!','error');return}const d=document.getElementById('sslR');d.innerHTML=`<div class="ld on"><div class="sp"></div><p>SSL...</p></div>`;try{const r=await fT(`https://crt.sh/?q=${encodeURIComponent(d0)}&output=json`,{},20000);const j=await r.json();if(!j||!j.length){d.innerHTML=`<div class="wb">⚠️ Gak ada cert</div>`;return}const l=j.sort((a,b)=>new Date(b.not_before)-new Date(a.not_before))[0];d.innerHTML=`<div class="rs"><h2>🔒 SSL</h2><div class="it"><span class="il">CN</span><span class="iv nt">${esc(l.common_name)}</span></div><div class="it"><span class="il">Issuer</span><span class="iv">${esc(l.issuer_name)}</span></div><div class="it"><span class="il">From</span><span class="iv">${new Date(l.not_before).toLocaleString('id-ID')}</span></div><div class="it"><span class="il">Until</span><span class="iv">${new Date(l.not_after).toLocaleString('id-ID')}</span></div><div class="it"><span class="il">Total</span><span class="iv">${j.length}</span></div></div>`;showToast('✅ SSL','success')}catch(e){d.innerHTML=`<div class="eb">❌ ${esc(e.message)}</div>`}}
+
+// ============ IP ============
+async function doIP(){const ip=document.getElementById('ipI').value.trim();if(!ip){showToast('❌ IP!','error');return}const d=document.getElementById('ipR');d.innerHTML=`<div class="ld on"><div class="sp"></div><p>IP...</p></div>`;try{const r=await fT(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,message,country,regionName,city,isp,org,as,timezone,lat,lon,query`,{},8000);const j=await r.json();if(j.status!=='success'){d.innerHTML=`<div class="eb">❌ ${esc(j.message||'failed')}</div>`;return}let h=`<div class="rs"><h2>📍 IP: ${esc(j.query)}</h2>`;[['Country',j.country],['Region',j.regionName],['City',j.city],['ISP',j.isp],['Org',j.org],['ASN',j.as],['Timezone',j.timezone],['Lat/Lon',`${j.lat}, ${j.lon}`]].forEach(([k,v])=>{if(v)h+=`<div class="it"><span class="il">${k}</span><span class="iv nt">${esc(v)}</span></div>`});h+=`<div class="it"><span class="il">Maps</span><span class="iv"><a href="https://www.google.com/maps?q=${j.lat},${j.lon}" target="_blank" style="color:var(--bl)">Buka</a></span></div></div>`;d.innerHTML=h;showToast('✅ IP','success')}catch(e){d.innerHTML=`<div class="eb">❌ ${esc(e.message)}</div>`}}
+
+// ============ PASSWORD ============
+function checkPw(){const p=document.getElementById('pw').value;const d=document.getElementById('pwR');if(!p){d.innerHTML='';return}const ck={'≥8':p.length>=8,'≥12':p.length>=12,'lower':/[a-z]/.test(p),'upper':/[A-Z]/.test(p),'num':/[0-9]/.test(p),'sym':/[^A-Za-z0-9]/.test(p),'no-pattern':!/(123|abc|qwe|password|admin)/i.test(p)};let ps=0;for(const v of Object.values(ck))if(v)ps++;const sc=Math.round(ps/Object.keys(ck).length*100);let cs=0;if(/[a-z]/.test(p))cs+=26;if(/[A-Z]/.test(p))cs+=26;if(/[0-9]/.test(p))cs+=10;if(/[^A-Za-z0-9]/.test(p))cs+=32;const ent=Math.round(p.length*Math.log2(cs||1));const cl=sc>=80?'gd':sc>=50?'wn':'bd';const lb=sc>=80?'STRONG 💪':sc>=50?'MEDIUM ⚠️':'WEAK ❌';let h=`<div style="margin-top:10px"><div class="gauge-w"><div style="text-align:center"><div class="gauge-p ${cl}" style="font-size:28px">${lb}</div><div class="gauge-l">Score: ${sc}% · Entropy: ${ent} bits</div></div></div>`;for(const[k,v]of Object.entries(ck))h+=`<div class="it"><span class="il">${k}</span><span class="iv ${v?'gd':'bd'}">${v?'✓':'✗'}</span></div>`;h+=`</div>`;d.innerHTML=h}
+
+// ============ HASH ============
+async function doHash(){const t=document.getElementById('hsI').value;const ty=document.getElementById('hsT').value;const d=document.getElementById('hsR');if(!t)return;try{const b=new TextEncoder().encode(t);const hb=await crypto.subtle.digest(ty,b);const hx=Array.from(new Uint8Array(hb)).map(b=>b.toString(16).padStart(2,'0')).join('');d.innerHTML=`<div class="rs"><h2>#️⃣ ${ty}</h2><div class="it"><span class="il">Input</span><span class="iv">${esc(t)}</span></div><div class="it" style="flex-direction:column;align-items:flex-start;gap:6px"><span class="il">Hash</span><span class="iv pn" style="text-align:left;user-select:all">${hx}</span></div><button class="bt bt-b" onclick="copyText('${hx}')" style="margin-top:10px">📋 Copy</button></div>`;showToast('✅ Hash','success',1200)}catch(e){d.innerHTML=`<div class="eb">❌ ${esc(e.message)}</div>`}}
+
+// ============ DEPLOY MODE SWITCHER ============
+function switchMode(m){depMode=m;const bA=document.getElementById('modeA-btn'),bB=document.getElementById('modeB-btn'),pA=document.getElementById('modeA-panel'),pB=document.getElementById('modeB-panel');if(m==='A'){bA.style.background='linear-gradient(135deg,var(--pn),var(--pn2))';bA.style.color='#fff';bB.style.background='transparent';bB.style.color='var(--mt)';pA.style.display='block';pB.style.display='none'}else{bB.style.background='linear-gradient(135deg,var(--pn),var(--pn2))';bB.style.color='#fff';bA.style.background='transparent';bA.style.color='var(--mt)';pA.style.display='none';pB.style.display='block'}playSnd('click')}
+
+function loadTemplate(type){const templates={simple:`<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website PANN</title>
+<style>
+body{font-family:sans-serif;background:linear-gradient(135deg,#0a0a0f,#1a1a2e);color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center}
+h1{font-size:3em;background:linear-gradient(90deg,#a855f7,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+p{color:#8b949e}
+</style>
+</head>
+<body>
+<div>
+<h1>🚀 Hello PANN</h1>
+<p>Website ini dibuat dengan WebSec Deploy</p>
+</div>
+</body>
+</html>`,portfolio:`<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio PANN</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,sans-serif;background:#0a0a0f;color:#e6edf3;line-height:1.6}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:radial-gradient(circle at 50% 50%,rgba(168,85,247,.15),transparent 70%)}
+.avatar{width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#58a6ff);display:flex;align-items:center;justify-content:center;font-size:70px;margin-bottom:20px;box-shadow:0 0 40px rgba(168,85,247,.5)}
+h1{font-size:2.5em;background:linear-gradient(90deg,#a855f7,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.tagline{color:#8b949e;margin-bottom:30px;font-size:1.1em}
+.social{display:flex;gap:15px;flex-wrap:wrap;justify-content:center}
+.social a{padding:10px 20px;background:rgba(168,85,247,.15);color:#a855f7;text-decoration:none;border-radius:8px;border:1px solid rgba(168,85,247,.3);transition:all .3s}
+.social a:hover{background:rgba(168,85,247,.3);transform:translateY(-2px)}
+footer{position:fixed;bottom:20px;left:0;right:0;text-align:center;color:#8b949e;font-size:.9em}
+</style>
+</head>
+<body>
+<div class="hero">
+<div class="avatar">👤</div>
+<h1>PANN</h1>
+<p class="tagline">Developer & Security Researcher</p>
+<div class="social">
+<a href="#">📧 Email</a>
+<a href="#">💼 LinkedIn</a>
+<a href="#">🐙 GitHub</a>
+<a href="#">📱 Telegram</a>
+</div>
+</div>
+<footer>© 2025 PANN — Deployed via WebSec Scanner</footer>
+</body>
+</html>`};document.getElementById('depHtml').value=templates[type]||templates.simple;showToast('📄 Template loaded','success',1500)}
+
+function clearHtml(){if(!confirm('Hapus semua HTML?'))return;document.getElementById('depHtml').value='';showToast('🗑️ Cleared','info')}
+
+function loadDepToken(){const t=localStorage.getItem(DEPK);if(t&&document.getElementById('depToken'))document.getElementById('depToken').value=t}
+function saveDepToken(){const t=document.getElementById('depToken').value.trim();if(!t)return;localStorage.setItem(DEPK,t)}
+
+function handleFiles(e){const files=[...e.target.files];if(!files.length)return;depFiles=[];let loaded=0;files.forEach(f=>{const reader=new FileReader();reader.onload=(ev)=>{const isZip=f.name.endsWith('.zip');depFiles.push({name:f.name,content:ev.target.result,type:f.type||(isZip?'application/zip':'text/plain'),size:f.size,isZip});loaded++;if(loaded===files.length)renderFileList()};reader.readAsDataURL(f)})}
+
+function renderFileList(){const listDiv=document.getElementById('fileList');if(!depFiles.length){listDiv.innerHTML='';document.getElementById('dropText').innerHTML='Tap untuk pilih file<br><span style="font-size:10px">Bisa .html, .css, .js (multi-file)</span>';return}const total=depFiles.reduce((s,f)=>s+f.size,0);const sz=total<1024?total+' B':total<1048576?(total/1024).toFixed(1)+' KB':(total/1048576).toFixed(2)+' MB';document.getElementById('dropText').innerHTML=`✅ ${depFiles.length} file dipilih<br><span style="font-size:10px">Total: ${sz}</span>`;let html=`<div class="rs" style="padding:12px;margin:0"><h2 style="font-size:12px">📁 File</h2>`;depFiles.forEach((f,i)=>{html+=`<div class="it" style="font-size:11px"><span class="il">${esc(f.name)}</span><span class="iv ${f.name==='index.html'?'gd':'nt'}">${f.name==='index.html'?'✓ index':'—'} · ${(f.size/1024).toFixed(1)}KB <button onclick="removeFile(${i})" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:14px;padding:0 4px">✕</button></span></div>`});html+=`</div>`;listDiv.innerHTML=html}
+
+function removeFile(i){depFiles.splice(i,1);renderFileList()}
+
+async function deployWebsite(){const name=document.getElementById('depName').value.trim().toLowerCase();const token=document.getElementById('depToken').value.trim();if(!name){showToast('❌ Isi nama website!','error');return}if(!/^[a-z0-9-]+$/.test(name)){showToast('❌ Nama cuma huruf kecil/angka/strip','error');return}if(!token){showToast('❌ Isi Vercel Token!','error');return}
+let vFiles=[];
+if(depMode==='B'){const html=document.getElementById('depHtml').value.trim();if(!html){showToast('❌ Paste HTML dulu!','error');return}if(!html.includes('<html')&&!html.includes('<!DOCTYPE')){showToast('⚠️ HTML gak valid','warn',3000)}const b64=btoa(unescape(encodeURIComponent(html)));vFiles.push({file:'index.html',data:b64,encoding:'base64'})}else{if(!depFiles.length){showToast('❌ Pilih file dulu!','error');return}for(const f of depFiles){const b64=f.content.split(',')[1];vFiles.push({file:f.name,data:b64,encoding:'base64'})}}
+saveDepToken();
+const btn=document.getElementById('depBtn');btn.disabled=true;btn.textContent='⏳ DEPLOYING...';showToast('🚀 Deploy...','pann',2000);playSnd('scan');haptic([20,50,20]);
+const statusDiv=document.getElementById('depStatus');const resultDiv=document.getElementById('depResult');resultDiv.innerHTML='';
+const steps=[{id:'auth',label:'🔐 Verifikasi token'},{id:'create',label:'🌐 Buat project'},{id:'upload',label:'📤 Upload file'},{id:'deploy',label:'🚀 Build'},{id:'wait',label:'⏳ Tunggu'}];
+statusDiv.innerHTML=`<div class="rs"><h2>📊 Progress</h2>${steps.map(s=>`<div class="it" id="ds-${s.id}"><span class="il">${s.label}</span><span class="iv">⏳</span></div>`).join('')}</div>`;
+const setStep=(id,ok,msg='')=>{const el=document.getElementById(`ds-${id}`);if(!el)return;const icon=el.querySelector('.iv');icon.textContent=ok?'✅':(msg.includes('⏳')?msg:'❌');icon.className='iv '+(ok?'gd':(msg.includes('⏳')?'wn':'bd'))};
+try{
+const userRes=await fetch('https://api.vercel.com/v2/user',{headers:{'Authorization':`Bearer ${token}`}});
+if(!userRes.ok){setStep('auth',false);throw new Error('Token invalid/expired')}
+const userData=await userRes.json();setStep('auth',true,userData.user?.username||'OK');
+const projRes=await fetch('https://api.vercel.com/v10/projects',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({name,framework:null})});
+let projData=await projRes.json();
+if(!projRes.ok){if(projData.error?.code==='project_already_exists'){const g=await fetch(`https://api.vercel.com/v9/projects/${name}`,{headers:{'Authorization':`Bearer ${token}`}});if(g.ok){projData=await g.json();setStep('create',true,'Sudah ada')}else{setStep('create',false);throw new Error('Project exists')}}else{setStep('create',false);throw new Error(projData.error?.message||'Gagal')}}else{setStep('create',true,name)}
+setStep('upload',true,`${vFiles.length} file`);
+setStep('deploy',true,'⏳...');
+const deployRes=await fetch('https://api.vercel.com/v13/deployments',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({name,project:projData.id||name,target:'production',files:vFiles,projectSettings:{framework:null}})});
+const deployData=await deployRes.json();
+if(!deployRes.ok){setStep('deploy',false);throw new Error(deployData.error?.message||'Gagal')}
+setStep('deploy',true,deployData.id?.substring(0,8)||'OK');
+const deployId=deployData.id;let finalUrl=`https://${name}.vercel.app`;let readyState=deployData.readyState||'QUEUED';let attempts=0;
+while(readyState!=='READY'&&readyState!=='ERROR'&&attempts<40){await new Promise(r=>setTimeout(r,3000));attempts++;try{const s=await fetch(`https://api.vercel.com/v13/deployments/${deployId}`,{headers:{'Authorization':`Bearer ${token}`}});if(s.ok){const d=await s.json();readyState=d.readyState;if(d.url)finalUrl='https://'+d.url;setStep('wait',false,`⏳ ${readyState} (${attempts*3}s)`)}}catch(e){}}
+if(readyState==='READY'){setStep('wait',true,finalUrl);resultDiv.innerHTML=`<div class="rs"><h2>🎉 Deploy Sukses!</h2><div class="it"><span class="il">Nama</span><span class="iv nt">${esc(name)}</span></div><div class="it"><span class="il">URL</span><span class="iv gd" style="user-select:all">${esc(finalUrl)}</span></div><div class="it"><span class="il">Mode</span><span class="iv">${depMode==='B'?'📝 Paste HTML':'📁 Upload File'}</span></div><div class="bt-rw" style="margin-top:12px"><button class="bt bt-p bt-sm" onclick="copyText('${finalUrl}')">📋 Copy Link</button><a class="bt bt-b bt-sm" href="${finalUrl}" target="_blank" style="text-decoration:none;text-align:center;display:inline-block">🔗 Buka</a></div></div>`;saveDepHistory({name,url:finalUrl,files:vFiles.length,mode:depMode,timestamp:new Date().toISOString()});renderDepHistory();showToast('🎉 Online!','success',3000);playSnd('success');confetti();showNotif('🚀 Sukses',`${name} → ${finalUrl}`)}else{setStep('wait',false,readyState);resultDiv.innerHTML=`<div class="eb">❌ ${esc(readyState)}. Cek <a href="https://vercel.com/dashboard" target="_blank" style="color:#fff">Dashboard</a></div>`;showToast('❌ Gagal','error')}
+}catch(e){console.error(e);showToast('❌ '+e.message.substring(0,60),'error',4000);playSnd('error')}finally{btn.disabled=false;btn.textContent='🚀 DEPLOY'}}
+
+function saveDepHistory(item){try{const h=JSON.parse(localStorage.getItem(DEPH)||'[]');h.unshift(item);if(h.length>20)h.length=20;localStorage.setItem(DEPH,JSON.stringify(h))}catch(e){}}
+function renderDepHistory(){const div=document.getElementById('depHistory');if(!div)return;try{const h=JSON.parse(localStorage.getItem(DEPH)||'[]');if(!h.length){div.innerHTML=`<div class="ib">Belum ada deploy.</div>`;return}div.innerHTML=h.map(item=>`<div class="hi-it" onclick="window.open('${item.url}', '_blank')"><div class="hi-u">${esc(item.name)}</div><div class="hi-m"><span>${new Date(item.timestamp).toLocaleString('id-ID')}</span><span class="gd">${item.files} file</span></div><div style="font-size:10px;color:var(--bl2);margin-top:4px;word-break:break-all">${esc(item.url)}</div></div>`).join('')}catch(e){}}
+
+// ============ HISTORY ============
+function getHist(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch{return[]}}
+function saveHist(r){const h=getHist();h.unshift({url:r.url,timestamp:r.timestamp,score:r.score,maxScore:r.maxScore,status:r.status});if(h.length>50)h.length=50;localStorage.setItem(SK,JSON.stringify(h))}
+function renderHist(){const h=getHist();const d=document.getElementById('histR');if(!h.length){d.innerHTML=`<div class="ib">Belum ada history</div>`;return}d.innerHTML=h.map((x,i)=>{const p=x.maxScore>0?Math.round(x.score/x.maxScore*100):0;const cl=p>=70?'gd':p>=40?'wn':'bd';return`<div class="hi-it" onclick="loadHist(${i})"><div class="hi-u">${esc(x.url)}</div><div class="hi-m"><span>${new Date(x.timestamp).toLocaleString('id-ID')}</span><span class="${cl}">${p}%</span></div></div>`}).join('')}
+function renderChart(){const c=document.getElementById('chart');if(!c)return;const x=c.getContext('2d');const h=getHist().slice(0,10).reverse();c.width=c.offsetWidth;c.height=80;const w=c.width,ht=c.height;x.clearRect(0,0,w,ht);if(!h.length){x.fillStyle=getComputedStyle(document.body).getPropertyValue('--mt');x.font='11px sans-serif';x.textAlign='center';x.fillText('Belum ada data',w/2,ht/2);return}const bw=(w-20)/h.length;h.forEach((it,i)=>{const p=it.maxScore>0?it.score/it.maxScore:0;const bh=p*(ht-20);const xx=10+i*bw,yy=ht-10-bh;const g=x.createLinearGradient(0,yy,0,ht-10);g.addColorStop(0,'#a855f7');g.addColorStop(1,'#58a6ff');x.fillStyle=g;x.fillRect(xx+4,yy,bw-8,bh);x.fillStyle=getComputedStyle(document.body).getPropertyValue('--mt');x.font='9px monospace';x.textAlign='center';x.fillText(Math.round(p*100)+'%',xx+bw/2,yy-3)})}
+function loadHist(i){const h=getHist()[i];if(!h)return;document.getElementById('tgt').value=h.url;showTab('scan');startScan()}
+function clearHist(){if(!confirm('Hapus?'))return;localStorage.removeItem(SK);renderHist();renderChart();updStats();showToast('🗑️','info')}
+function exportHist(){const b=new Blob([JSON.stringify(getHist(),null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`websec_${Date.now()}.json`;a.click();URL.revokeObjectURL(u);showToast('📥','success')}
+
+// ============ EXPORT ============
+function exportJSON(){if(!lastR){showToast('❌ Scan dulu!','error');return}const b=new Blob([JSON.stringify(lastR,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`websec_${Date.now()}.json`;a.click();URL.revokeObjectURL(u);showToast('📥','success')}
+function exportPDF(){if(!lastR){showToast('❌ Scan dulu!','error');return}const{jsPDF}=window.jspdf;const doc=new jsPDF();const r=lastR;doc.setFontSize(20);doc.setTextColor(168,85,247);doc.text('WebSec Scanner v4.3.1',14,20);doc.setFontSize(10);doc.setTextColor(100);doc.text('by PANN — Desainer: PANN',14,27);doc.setFontSize(12);doc.setTextColor(0);doc.text('Target: '+r.url,14,40);doc.text('Time: '+new Date(r.timestamp).toLocaleString('id-ID'),14,47);doc.text('Status: '+(r.status||'—'),14,54);let y=65;doc.setFontSize(14);doc.setTextColor(88,166,255);doc.text('Security Headers',14,y);y+=7;doc.setFontSize(10);doc.setTextColor(0);for(const[k,i]of Object.entries(SH)){doc.text(`${i.n}: ${r.headers&&r.headers[k]?'PRESENT':'MISSING'}`,18,y);y+=6;if(y>270){doc.addPage();y=20}}doc.save(`websec_${Date.now()}.pdf`);showToast('📄','success')}
+async function shareReport(){if(!lastR){showToast('❌ Scan dulu!','error');return}const r=lastR;const p=r.maxScore>0&&!r.corsBlocked?Math.round(r.score/r.maxScore*100):'—';const t=`🔍 WebSec Scanner by PANN\n\nURL: ${r.url}\nScore: ${p}%\nTech: ${r.tech.join(', ')||'-'}`;if(navigator.share){try{await navigator.share({title:'WebSec Report',text:t});showToast('✅ Shared','success')}catch(e){}}else copyText(t)}
+
+// ============ STATS ============
+function updStats(){const h=getHist();document.getElementById('stScans').textContent=h.length;const a=h.length?Math.round(h.reduce((s,x)=>s+(x.maxScore>0?x.score/x.maxScore*100:0),0)/h.length):0;document.getElementById('stAvg').textContent=a+'%'}
+function updUrlH(){const h=getHist();const uq=[...new Set(h.map(x=>x.url))].slice(0,20);document.getElementById('urlH').innerHTML=uq.map(u=>`<option value="${esc(u)}">`).join('')}
+
+// ============ LOADING ============
+function showLd(t){document.getElementById('ld').classList.add('on');document.getElementById('ldT').textContent=t}
+function hideLd(){document.getElementById('ld').classList.remove('on')}
+
+// ============ ONLINE ============
+function updOn(){document.getElementById('onSt').style.color=navigator.onLine?'var(--gn)':'var(--rd)'}
+addEventListener('online',updOn);addEventListener('offline',updOn);
+
+// ============ SERVICE WORKER ============
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ============ INIT ============
+loadTheme();loadNotif();updOn();updStats();updUrlH();
+document.getElementById('snBtn').textContent=sndOn?'🔊':'🔇';
+setTimeout(()=>{loadDepToken();renderDepHistory()},200);
+console.log('%c🔍 WebSec Scanner v4.3.1','color:#a855f7;font-size:20px;font-weight:900');
+console.log('%cby PANN · Desainer: PANN','color:#58a6ff;font-size:12px');
+console.log('%cv4.3.1: +Deploy Paste HTML +Upload','color:#7ee787;font-size:11px');
+</script>
+</body>
+  </html>
