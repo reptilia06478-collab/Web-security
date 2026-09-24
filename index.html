@@ -190,6 +190,7 @@ html,body{width:100%;min-height:100vh;font-family:-apple-system,'Segoe UI',sans-
     <div class="tb" onclick="showTab('tools')" id="t-tools">🛠️ Tools</div>
     <div class="tb" onclick="showTab('history')" id="t-history">📜 Hist</div>
     <div class="tb" onclick="showTab('about')" id="t-about">ℹ️</div>
+    <div class="tb" onclick="showTab('deploy')" id="t-deploy">🚀 Deploy</div>
   </div>
 
   <!-- SCAN -->
@@ -322,6 +323,48 @@ html,body{width:100%;min-height:100vh;font-family:-apple-system,'Segoe UI',sans-
     </div>
     <div id="histR"></div>
   </div>
+
+  <!-- DEPLOY v4.3 -->
+<div id="deploy" class="sec">
+  <div class="bx" style="text-align:center">
+    <h1 style="background:linear-gradient(90deg,var(--pn),var(--bl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:22px;font-weight:900;margin-bottom:6px">Deploy Website</h1>
+    <p style="font-size:11px;color:var(--mt);margin-bottom:18px">By PANN · Powered by Vercel</p>
+    <div style="width:140px;height:140px;margin:0 auto 18px;border-radius:20px;background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(88,166,255,.2));display:flex;align-items:center;justify-content:center;font-size:70px;border:2px dashed var(--gb);overflow:hidden" id="deployLogo">🚀</div>
+    <p style="font-size:10px;color:var(--mt);margin-bottom:18px">Credit by PANN</p>
+    <div style="text-align:left">
+      <label>Nama Website</label>
+      <input id="depName" type="text" placeholder="contoh: webseccanner">
+      <div style="font-size:10px;color:var(--mt);margin-top:-8px;margin-bottom:12px">⚠️ Huruf kecil, angka, strip (-) aja.</div>
+      <label>Upload File HTML</label>
+      <div style="background:var(--bg3);border:2px dashed var(--bd);border-radius:12px;padding:20px;text-align:center;margin-bottom:12px;cursor:pointer" id="dropZone" onclick="document.getElementById('depFile').click()">
+        <div style="font-size:36px;margin-bottom:8px">📁</div>
+        <div style="font-size:12px;color:var(--mt)" id="dropText">Tap untuk pilih file<br><span style="font-size:10px">Bisa .html, .zip, atau multi-file</span></div>
+      </div>
+      <input id="depFile" type="file" accept=".html,.htm,.zip,.css,.js,image/*" multiple style="display:none" onchange="handleFiles(event)">
+      <label>Vercel Token (wajib 1x setup)</label>
+      <input id="depToken" type="password" placeholder="vercel_xxxxxxxxxxxx">
+      <div style="font-size:10px;color:var(--mt);margin-top:-8px;margin-bottom:12px">Dapetin di <a href="https://vercel.com/account/tokens" target="_blank" style="color:var(--bl)">vercel.com/account/tokens</a></div>
+    </div>
+    <button id="depBtn" onclick="deployWebsite()" style="width:100%;padding:16px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:900;cursor:pointer;margin-top:8px;letter-spacing:1px;box-shadow:0 4px 20px rgba(34,197,94,.4)">🚀 DEPLOY</button>
+    <div id="fileList" style="text-align:left;margin-top:12px"></div>
+  </div>
+  <div id="depStatus"></div>
+  <div id="depResult"></div>
+  <div class="bx">
+    <h2 style="color:var(--bl2);font-size:14px;margin-bottom:10px">📜 History Deploy</h2>
+    <div id="depHistory"></div>
+  </div>
+  <div class="bx">
+    <h2 style="color:var(--bl2);font-size:14px;margin-bottom:10px">📖 Cara Pakai</h2>
+    <div class="pb" style="font-size:11px;line-height:1.8">
+      <b>1.</b> Isi <b>Nama Website</b><br>
+      <b>2.</b> Pilih file HTML<br>
+      <b>3.</b> Paste <b>Vercel Token</b><br>
+      <b>4.</b> Klik <b>🚀 DEPLOY</b><br>
+      <b>5.</b> Tunggu → dapet link <code>namatuan.vercel.app</code>
+    </div>
+  </div>
+</div>
 
   <!-- ABOUT -->
   <div id="about" class="sec">
@@ -513,6 +556,175 @@ function updUrlH(){const h=getHist();const uq=[...new Set(h.map(x=>x.url))].slic
 function showLd(t){document.getElementById('ld').classList.add('on');document.getElementById('ldT').textContent=t}
 function hideLd(){document.getElementById('ld').classList.remove('on')}
 
+  // ============ V4.3 DEPLOY ============
+const DEP_TOKEN_KEY = 'websec_dep_token_v43';
+const DEP_HIST_KEY = 'websec_dep_hist_v43';
+let depFiles = [];
+
+function loadDepToken() {
+  const t = localStorage.getItem(DEP_TOKEN_KEY);
+  if (t && document.getElementById('depToken')) document.getElementById('depToken').value = t;
+}
+function saveDepToken() {
+  const t = document.getElementById('depToken').value.trim();
+  if (!t) return;
+  localStorage.setItem(DEP_TOKEN_KEY, t);
+  showToast('💾 Token tersimpan', 'success', 1500);
+}
+function handleFiles(e) {
+  const files = [...e.target.files];
+  if (!files.length) return;
+  depFiles = [];
+  let loaded = 0;
+  files.forEach((f) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const isZip = f.name.endsWith('.zip');
+      depFiles.push({ name: f.name, content: ev.target.result, type: f.type || (isZip ? 'application/zip' : 'text/plain'), size: f.size, isZip });
+      loaded++;
+      if (loaded === files.length) renderFileList();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function renderFileList() {
+  const listDiv = document.getElementById('fileList');
+  if (!depFiles.length) {
+    listDiv.innerHTML = '';
+    document.getElementById('dropText').innerHTML = 'Tap untuk pilih file<br><span style="font-size:10px">Bisa .html, .zip, atau multi-file</span>';
+    return;
+  }
+  const total = depFiles.reduce((s, f) => s + f.size, 0);
+  const sz = total < 1024 ? total + ' B' : total < 1048576 ? (total/1024).toFixed(1) + ' KB' : (total/1048576).toFixed(2) + ' MB';
+  document.getElementById('dropText').innerHTML = `✅ ${depFiles.length} file dipilih<br><span style="font-size:10px">Total: ${sz}</span>`;
+  let html = `<div class="rs" style="padding:12px;margin:0"><h2 style="font-size:12px">📁 File</h2>`;
+  depFiles.forEach((f, i) => {
+    html += `<div class="it" style="font-size:11px"><span class="il">${esc(f.name)}</span><span class="iv ${f.name==='index.html'?'gd':'nt'}">${f.name==='index.html'?'✓ index':'—'} · ${(f.size/1024).toFixed(1)}KB <button onclick="removeFile(${i})" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:14px;padding:0 4px">✕</button></span></div>`;
+  });
+  html += `</div>`;
+  listDiv.innerHTML = html;
+}
+function removeFile(i) { depFiles.splice(i, 1); renderFileList(); }
+
+async function deployWebsite() {
+  const name = document.getElementById('depName').value.trim().toLowerCase();
+  const token = document.getElementById('depToken').value.trim();
+  if (!name) { showToast('❌ Isi nama!', 'error'); return; }
+  if (!/^[a-z0-9-]+$/.test(name)) { showToast('❌ Nama cuma huruf kecil/angka/strip', 'error'); return; }
+  if (!token) { showToast('❌ Isi Token!', 'error'); return; }
+  if (!depFiles.length) { showToast('❌ Pilih file!', 'error'); return; }
+  saveDepToken();
+  const btn = document.getElementById('depBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ DEPLOYING...';
+  showToast('🚀 Deploy...', 'pann', 2000);
+  playSnd('scan');
+  haptic([20, 50, 20]);
+  const statusDiv = document.getElementById('depStatus');
+  const resultDiv = document.getElementById('depResult');
+  resultDiv.innerHTML = '';
+  const steps = [
+    { id: 'auth', label: '🔐 Verifikasi token' },
+    { id: 'prepare', label: '📦 Siapin file' },
+    { id: 'create', label: '🌐 Buat project' },
+    { id: 'upload', label: '📤 Upload' },
+    { id: 'deploy', label: '🚀 Build' },
+    { id: 'wait', label: '⏳ Tunggu' },
+  ];
+  statusDiv.innerHTML = `<div class="rs"><h2>📊 Progress</h2>${steps.map(s => `<div class="it" id="ds-${s.id}"><span class="il">${s.label}</span><span class="iv">⏳</span></div>`).join('')}</div>`;
+  const setStep = (id, ok, msg = '') => {
+    const el = document.getElementById(`ds-${id}`);
+    if (!el) return;
+    const icon = el.querySelector('.iv');
+    icon.textContent = ok ? '✅' : (msg.includes('⏳') ? msg : '❌');
+    icon.className = 'iv ' + (ok ? 'gd' : (msg.includes('⏳') ? 'wn' : 'bd'));
+  };
+  try {
+    let userRes = await fetch('https://api.vercel.com/v2/user', { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!userRes.ok) { setStep('auth', false); throw new Error('Token invalid'); }
+    const userData = await userRes.json();
+    setStep('auth', true, userData.user?.username || 'OK');
+    setStep('prepare', true, `${depFiles.length} file`);
+    const projRes = await fetch('https://api.vercel.com/v10/projects', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, framework: null })
+    });
+    let projData = await projRes.json();
+    if (!projRes.ok) {
+      if (projData.error?.code === 'project_already_exists') {
+        const g = await fetch(`https://api.vercel.com/v9/projects/${name}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (g.ok) { projData = await g.json(); setStep('create', true, 'Sudah ada'); }
+        else { setStep('create', false); throw new Error('Project exists'); }
+      } else { setStep('create', false); throw new Error(projData.error?.message || 'Gagal'); }
+    } else { setStep('create', true, name); }
+    setStep('upload', true, '⏳...');
+    const vFiles = [];
+    for (const f of depFiles) {
+      if (f.isZip) continue;
+      const b64 = f.content.split(',')[1];
+      vFiles.push({ file: f.name, data: b64, encoding: 'base64' });
+    }
+    if (vFiles.length === 0) { setStep('upload', false); throw new Error('File kosong/ZIP gak support'); }
+    setStep('upload', true, `${vFiles.length} file`);
+    setStep('deploy', true, '⏳...');
+    const deployRes = await fetch('https://api.vercel.com/v13/deployments', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, project: projData.id || name, target: 'production', files: vFiles, projectSettings: { framework: null } })
+    });
+    const deployData = await deployRes.json();
+    if (!deployRes.ok) { setStep('deploy', false); throw new Error(deployData.error?.message || 'Gagal'); }
+    setStep('deploy', true, deployData.id?.substring(0, 8) || 'OK');
+    const deployId = deployData.id;
+    let finalUrl = `https://${name}.vercel.app`;
+    let readyState = deployData.readyState || 'QUEUED';
+    let attempts = 0;
+    while (readyState !== 'READY' && readyState !== 'ERROR' && attempts < 40) {
+      await new Promise(r => setTimeout(r, 3000));
+      attempts++;
+      try {
+        const s = await fetch(`https://api.vercel.com/v13/deployments/${deployId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (s.ok) { const d = await s.json(); readyState = d.readyState; if (d.url) finalUrl = 'https://' + d.url; setStep('wait', false, `⏳ ${readyState} (${attempts*3}s)`); }
+      } catch(e) {}
+    }
+    if (readyState === 'READY') {
+      setStep('wait', true, finalUrl);
+      resultDiv.innerHTML = `<div class="rs"><h2>🎉 Deploy Sukses!</h2><div class="it"><span class="il">Nama</span><span class="iv nt">${esc(name)}</span></div><div class="it"><span class="il">URL</span><span class="iv gd" style="user-select:all">${esc(finalUrl)}</span></div><div class="it"><span class="il">Files</span><span class="iv">${vFiles.length}</span></div><div class="bt-rw" style="margin-top:12px"><button class="bt bt-p bt-sm" onclick="copyText('${finalUrl}')">📋 Copy</button><a class="bt bt-b bt-sm" href="${finalUrl}" target="_blank" style="text-decoration:none;text-align:center;display:inline-block">🔗 Buka</a></div></div>`;
+      saveDepHistory({ name, url: finalUrl, files: vFiles.length, timestamp: new Date().toISOString() });
+      renderDepHistory();
+      showToast('🎉 Online!', 'success', 3000);
+      playSnd('success');
+      confetti();
+      showNotif('🚀 Sukses', `${name} → ${finalUrl}`);
+    } else {
+      setStep('wait', false, readyState);
+      resultDiv.innerHTML = `<div class="eb">❌ ${esc(readyState)}. Cek <a href="https://vercel.com/dashboard" target="_blank" style="color:#fff">Dashboard</a></div>`;
+      showToast('❌ Gagal', 'error');
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('❌ ' + e.message.substring(0, 60), 'error', 4000);
+    playSnd('error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 DEPLOY';
+  }
+}
+function saveDepHistory(item) {
+  try { const h = JSON.parse(localStorage.getItem(DEP_HIST_KEY) || '[]'); h.unshift(item); if (h.length > 20) h.length = 20; localStorage.setItem(DEP_HIST_KEY, JSON.stringify(h)); } catch(e) {}
+}
+function renderDepHistory() {
+  const div = document.getElementById('depHistory');
+  if (!div) return;
+  try {
+    const h = JSON.parse(localStorage.getItem(DEP_HIST_KEY) || '[]');
+    if (!h.length) { div.innerHTML = `<div class="ib">Belum ada deploy.</div>`; return; }
+    div.innerHTML = h.map(item => `<div class="hi-it" onclick="window.open('${item.url}', '_blank')"><div class="hi-u">${esc(item.name)}</div><div class="hi-m"><span>${new Date(item.timestamp).toLocaleString('id-ID')}</span><span class="gd">${item.files} file</span></div><div style="font-size:10px;color:var(--bl2);margin-top:4px;word-break:break-all">${esc(item.url)}</div></div>`).join('');
+  } catch(e) {}
+}
+setTimeout(() => { loadDepToken(); renderDepHistory(); }, 200);
+  
 // ============ ONLINE ============
 function updOn(){document.getElementById('onSt').style.color=navigator.onLine?'var(--gn)':'var(--rd)'}
 addEventListener('online',updOn);addEventListener('offline',updOn);
