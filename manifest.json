@@ -1,15 +1,15 @@
 {
-  "name": "WebSec Scanner v3.1 by PANN",
+  "name": "WebSec Scanner v4 by PANN",
   "short_name": "WebSec PANN",
   "description": "Website Security Scanner + Network Tools — by PANN",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#0d1117",
+  "background_color": "#0a0a0f",
   "theme_color": "#a855f7",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23a855f7'/><stop offset='1' stop-color='%2358a6ff'/></linearGradient></defs><rect width='192' height='192' rx='40' fill='%230d1117'/><text x='50%' y='50%' font-size='110' text-anchor='middle' dominant-baseline='central'>🔍</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23a855f7'/><stop offset='1' stop-color='%2358a6ff'/></linearGradient></defs><rect width='192' height='192' rx='40' fill='%230a0a0f'/><text x='50%' y='50%' font-size='110' text-anchor='middle' dominant-baseline='central'>🔍</text></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
