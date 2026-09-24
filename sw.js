@@ -1,4 +1,4 @@
-const CACHE = 'websec-v4.0';  
+const CACHE = 'websec-v4.1';  
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
@@ -28,4 +28,8 @@ self.addEventListener('fetch', (e) => {
       })
       .catch(() => caches.match(e.request) || caches.match('./index.html'))
   );
+});
+
+self.addEventListener('message', (e) => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });
